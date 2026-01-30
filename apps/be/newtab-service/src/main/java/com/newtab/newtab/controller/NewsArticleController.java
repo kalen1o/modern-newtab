@@ -1,5 +1,6 @@
 package com.newtab.newtab.controller;
 
+import com.newtab.newtab.dto.PageResponse;
 import com.newtab.newtab.entity.NewsArticle;
 import com.newtab.newtab.service.NewsArticleService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,7 +12,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/news")
@@ -25,11 +25,15 @@ public class NewsArticleController {
     }
 
     @GetMapping
-    @Operation(summary = "Get recent news", description = "Retrieves the 20 most recent news articles")
-    @ApiResponse(responseCode = "200", description = "News articles retrieved", content = @Content(schema = @Schema(implementation = NewsArticle.class)))
-    public ResponseEntity<List<NewsArticle>> getRecentNews() {
-        List<NewsArticle> articles = newsArticleService.getRecentNews();
-        return ResponseEntity.ok(articles);
+    @Operation(summary = "Get recent news with pagination", description = "Retrieves news articles with pagination")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "News articles retrieved", content = @Content(schema = @Schema(implementation = PageResponse.class)))
+    })
+    public ResponseEntity<PageResponse<NewsArticle>> getRecentNews(
+            @Parameter(description = "Page number (0-indexed)", example = "0") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Page size", example = "20") @RequestParam(defaultValue = "20") int size) {
+        PageResponse<NewsArticle> response = newsArticleService.getRecentNews(page, size);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping

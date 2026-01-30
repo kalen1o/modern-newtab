@@ -20,6 +20,9 @@ pnpm add -D @originjs/vite-plugin-federation
 cd ../autocomplete-input
 pnpm add -D @originjs/vite-plugin-federation
 
+cd ../news
+pnpm add -D @originjs/vite-plugin-federation
+
 cd ../sponsor-admin
 pnpm add -D @originjs/vite-plugin-federation
 ```
@@ -31,11 +34,12 @@ pnpm add -D @originjs/vite-plugin-federation
 ```json
 {
   "scripts": {
-    "dev": "nx run-many -t dev -p newtab-shell autocomplete-input sponsor-admin",
-    "dev:shell": "nx run newtab:dev",
-    "dev:autocomplete": "nx run autocomplete-input:dev",
-    "dev:admin": "nx run sponsor-admin:dev",
-    "build": "nx run-many -t build -p newtab-shell autocomplete-input sponsor-admin"
+    "dev": "nx run-many -t serve -p newtab-shell autocomplete-input news",
+    "dev:shell": "nx run newtab:serve",
+    "dev:autocomplete": "nx run autocomplete-input:serve",
+    "dev:news": "nx run news:serve",
+    "dev:admin": "nx run sponsor-admin:serve",
+    "build": "nx run-many -t build -p newtab-shell autocomplete-input news"
   }
 }
 ```
@@ -99,6 +103,7 @@ export default defineConfig({
       name: 'newtab-shell',
       remotes: {
         autocomplete: 'http://localhost:5001/assets/remoteEntry.js',
+        news: 'http://localhost:5002/assets/remoteEntry.js',
       },
       shared: ['react', 'react-dom'],
     }),
@@ -468,6 +473,12 @@ const AutocompleteModule = lazy(() =>
   }))
 )
 
+const NewsModule = lazy(() =>
+  import('news/News').then((module) => ({
+    default: module.News,
+  }))
+)
+
 function App() {
   const [settingsOpen, setSettingsOpen] = useState(false)
 
@@ -488,7 +499,9 @@ function App() {
         </main>
 
         <aside className="app__sidebar">
-          <NewsScrollGrid />
+          <Suspense fallback={<div>Loading news...</div>}>
+            <NewsModule />
+          </Suspense>
         </aside>
       </div>
 
@@ -746,7 +759,236 @@ export function Autocomplete() {
 }
 ```
 
-## 3.4 Sponsor Admin App (apps/fe/sponsor-admin)
+## 3.4 News Module (apps/fe/news)
+
+### Purpose
+
+Remote module providing news grid display with API integration and responsive layout.
+
+### Directory Structure
+
+```
+apps/fe/news/
+├── src/
+│   ├── components/
+│   │   └── NewsGrid.tsx
+│   ├── api/
+│   │   └── news.ts
+│   ├── types/
+│   │   └── index.ts
+│   ├── App.tsx (exported component)
+│   ├── main.tsx
+│   ├── App.css
+│   └── index.css
+├── public/
+├── index.html
+├── vite.config.ts
+├── package.json
+└── tsconfig.json
+```
+
+### Step 1: Update vite.config.ts with Federation
+
+**File:** `/apps/fe/news/vite.config.ts`
+
+```typescript
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import federation from '@originjs/vite-plugin-federation'
+
+export default defineConfig({
+  plugins: [
+    react({
+      babel: {
+        plugins: [['babel-plugin-react-compiler']],
+      },
+    }),
+    federation({
+      name: 'news',
+      filename: 'remoteEntry.js',
+      exposes: {
+        './News': './src/App.tsx',
+      },
+      shared: ['react', 'react-dom'],
+    }),
+  ],
+  build: {
+    target: 'esnext',
+    minify: false,
+    cssCodeSplit: false,
+  },
+  server: {
+    port: 5002,
+    cors: true,
+  },
+})
+```
+
+### Step 2: Create Types
+
+**File:** `/apps/fe/news/src/types/index.ts`
+
+```typescript
+export interface NewsArticle {
+  id: number
+  title: string
+  description: string
+  url: string
+  source?: string
+  publishedAt?: string
+  imageUrl?: string
+  createdAt: string
+}
+```
+
+### Step 3: Create API Utility
+
+**File:** `/apps/fe/news/src/api/news.ts`
+
+```typescript
+const API_BASE = 'http://localhost:8082'
+
+async function apiRequest<T>(
+  url: string,
+  options: RequestInit = {}
+): Promise<T> {
+  const token = localStorage.getItem('authToken')
+
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+    ...options.headers,
+  }
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`
+  }
+
+  const response = await fetch(url, { ...options, headers })
+
+  if (!response.ok) {
+    throw new Error(`API Error: ${response.status} ${response.statusText}`)
+  }
+
+  return response.json()
+}
+
+export const newsApi = {
+  get: <T>(url: string) => apiRequest<T>(url, { method: 'GET' }),
+}
+```
+
+### Step 4: Create News Grid Component
+
+**File:** `/apps/fe/news/src/components/NewsGrid.tsx`
+
+```typescript
+import { useState, useEffect } from 'react'
+import { NewsArticle } from '../types'
+import { newsApi } from '../api/news'
+
+export function NewsGrid() {
+  const [articles, setArticles] = useState<NewsArticle[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    loadNews()
+  }, [])
+
+  const loadNews = async () => {
+    try {
+      const data = await newsApi.get<{ articles: NewsArticle[] }>(
+        `${API_BASE}/api/news`
+      )
+      setArticles(data.articles)
+      setError(null)
+    } catch (error) {
+      console.error('Failed to load news:', error)
+      setError('Failed to load news articles')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="news-grid news-grid--loading">
+        <div className="news-grid__loader">Loading news...</div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="news-grid news-grid--error">
+        <div className="news-grid__error">{error}</div>
+        <button onClick={loadNews} className="news-grid__retry">
+          Retry
+        </button>
+      </div>
+    )
+  }
+
+  if (articles.length === 0) {
+    return (
+      <div className="news-grid news-grid--empty">
+        <div className="news-grid__empty">No news articles available</div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="news-grid">
+      {articles.map((article) => (
+        <a
+          key={article.id}
+          href={article.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="news-grid__item"
+        >
+          {article.imageUrl && (
+            <img
+              src={article.imageUrl}
+              alt={article.title}
+              className="news-grid__image"
+            />
+          )}
+          <div className="news-grid__content">
+            {article.source && (
+              <div className="news-grid__source">{article.source}</div>
+            )}
+            <h3 className="news-grid__title">{article.title}</h3>
+            {article.description && (
+              <p className="news-grid__description">{article.description}</p>
+            )}
+            {article.publishedAt && (
+              <div className="news-grid__date">
+                {new Date(article.publishedAt).toLocaleDateString()}
+              </div>
+            )}
+          </div>
+        </a>
+      ))}
+    </div>
+  )
+}
+```
+
+### Step 5: Update Main App (Export Component)
+
+**File:** `/apps/fe/news/src/App.tsx`
+
+```typescript
+import { NewsGrid } from './components/NewsGrid'
+
+export { NewsGrid }
+export function News() {
+  return <NewsGrid />
+}
+```
+
+## 3.5 Sponsor Admin App (apps/fe/sponsor-admin)
 
 ### Purpose
 
@@ -791,12 +1033,14 @@ After completing Phase 3:
 - [ ] `@originjs/vite-plugin-federation` installed in all FE apps
 - [ ] NewTab shell vite.config.ts configured as federation host
 - [ ] Autocomplete vite.config.ts configured as federation remote
+- [ ] News vite.config.ts configured as federation remote
 - [ ] Sponsor admin vite.config.ts configured as standalone app
 - [ ] SponsorBackground component created
-- [ ] NewsScrollGrid component created
+- [ ] NewsGrid component created
 - [ ] SettingsModal component created
 - [ ] AutocompleteInput component created and exported
-- [ ] Shell app loads remote module successfully
+- [ ] NewsModule component created and exported
+- [ ] Shell app loads remote modules successfully
 - [ ] All apps can run concurrently on different ports
 - [ ] API integration points created
 
@@ -811,7 +1055,10 @@ pnpm run dev:shell
 # Terminal 2: Autocomplete
 pnpm run dev:autocomplete
 
-# Terminal 3: Admin
+# Terminal 3: News
+pnpm run dev:news
+
+# Terminal 4: Admin
 pnpm run dev:admin
 ```
 
@@ -819,7 +1066,8 @@ pnpm run dev:admin
 
 1. Open http://localhost:5173
 2. Check that autocomplete module loads
-3. Verify no console errors about remote entry
+3. Check that news module loads
+4. Verify no console errors about remote entries
 
 ## Next Steps
 

@@ -18,21 +18,13 @@
         "build": {
             "executor": "nx:run-commands",
             "options": {
-                "commands": [
-                    "cd apps/be/auth-service",
-                    "mvn clean package -DskipTests"
-                ],
-                "parallel": false
+                "command": "cd apps/be/auth-service && mvn clean package -DskipTests"
             }
         },
         "test": {
             "executor": "nx:run-commands",
             "options": {
-                "commands": [
-                    "cd apps/be/auth-service",
-                    "mvn test"
-                ],
-                "parallel": false
+                "command": "cd apps/be/auth-service && mvn test"
             }
         }
     },

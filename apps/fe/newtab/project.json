@@ -1,21 +1,21 @@
 {
-    "name": "newtab-shell",
+    "name": "newtab",
     "$schema": "../../node_modules/nx/schemas/project-schema.json",
     "sourceRoot": "apps/fe/newtab/src",
     "projectType": "application",
     "targets": {
         "serve": {
-            "executor": "@nx/vite:dev",
+            "executor": "nx:run-commands",
             "options": {
-                "buildTarget": "newtab-shell:build",
-                "port": 5173
+                "command": "pnpm dev",
+                "cwd": "apps/fe/newtab"
             }
         },
         "build": {
-            "executor": "@nx/vite:build",
+            "executor": "nx:run-commands",
             "options": {
-                "outputPath": "dist/apps/fe/newtab",
-                "configFile": "apps/fe/newtab/vite.config.ts"
+                "command": "pnpm build",
+                "cwd": "apps/fe/newtab"
             },
             "configurations": {
                 "production": {

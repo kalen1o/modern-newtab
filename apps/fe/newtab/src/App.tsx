@@ -1,34 +1,94 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState, Suspense, lazy, useEffect, useRef } from 'react'
+import { ErrorBoundary } from './components/ErrorBoundary'
+
+// Lazy load microfrontends with proper error handling
+const AutocompleteInput = lazy(() => import('autocomplete/Autocomplete'))
+const NewsGrid = lazy(() => import('news/News'))
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [showNews, setShowNews] = useState(true)
+  const [bgOpacity, setBgOpacity] = useState(0)
+  const newsSectionRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const intersectionRatio = entry.intersectionRatio
+            setBgOpacity(Math.min(intersectionRatio * 2, 0.8))
+          }
+        })
+      },
+      {
+        threshold: Array.from({ length: 100 }, (_, i) => i / 100),
+        rootMargin: '-100px'
+      }
+    )
+
+    const currentRef = newsSectionRef.current
+    if (currentRef) {
+      observer.observe(currentRef)
+    }
+
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef)
+      }
+    }
+  }, [])
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div
+      className="flex flex-col min-h-screen relative"
+      style={{
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        '--bg-opacity': bgOpacity
+      } as React.CSSProperties}
+    >
+      <div className="absolute inset-0 pointer-events-none transition-colors duration-100 ease-out"
+        style={{
+          backgroundColor: `rgba(0, 0, 0, ${bgOpacity})`,
+          zIndex: 0
+        }}
+      />
+
+      <div className="flex flex-col h-screen relative z-[5]">
+        <header className="flex justify-between items-center px-8 py-6 bg-black/30 backdrop-blur-[10px] border-b border-white/10 flex-shrink-0">
+          <h1 className="m-0 text-4xl font-bold text-white drop-shadow-md">
+            NewTab
+          </h1>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowNews(!showNews)}
+              className="px-4 py-2 bg-white/10 text-white border border-white/20 rounded-lg cursor-pointer text-sm transition-colors hover:bg-white/20"
+            >
+              {showNews ? 'Hide News' : 'Show News'}
+            </button>
+          </div>
+        </header>
+
+        <section className="flex-1 flex flex-col justify-center items-center px-8">
+          <div className="w-full max-w-[600px] flex flex-col items-center">
+            <ErrorBoundary appName="Search Component">
+              <Suspense fallback={<div className="text-white/70 text-lg py-8 text-center">Loading search...</div>}>
+                <AutocompleteInput />
+              </Suspense>
+            </ErrorBoundary>
+          </div>
+        </section>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+
+      {showNews && (
+        <section ref={newsSectionRef} className="relative w-full px-8 py-8">
+          <ErrorBoundary appName="News Component">
+            <Suspense fallback={<div className="text-white/70 text-lg py-8 text-center">Loading news...</div>}>
+              <NewsGrid />
+            </Suspense>
+          </ErrorBoundary>
+        </section>
+      )}
+    </div>
   )
 }
 

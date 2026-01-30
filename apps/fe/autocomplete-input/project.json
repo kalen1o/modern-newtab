@@ -5,17 +5,24 @@
     "projectType": "application",
     "targets": {
         "serve": {
-            "executor": "@nx/vite:dev",
+            "executor": "nx:run-commands",
             "options": {
-                "buildTarget": "autocomplete-input:build",
-                "port": 5001
+                "command": "pnpm dev",
+                "cwd": "apps/fe/autocomplete-input"
+            }
+        },
+        "preview": {
+            "executor": "nx:run-commands",
+            "options": {
+                "command": "pnpm preview",
+                "cwd": "apps/fe/autocomplete-input"
             }
         },
         "build": {
-            "executor": "@nx/vite:build",
+            "executor": "nx:run-commands",
             "options": {
-                "outputPath": "dist/apps/fe/autocomplete-input",
-                "configFile": "apps/fe/autocomplete-input/vite.config.ts"
+                "command": "pnpm build",
+                "cwd": "apps/fe/autocomplete-input"
             },
             "configurations": {
                 "production": {
