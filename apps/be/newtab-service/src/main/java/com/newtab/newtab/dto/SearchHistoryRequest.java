@@ -12,9 +12,19 @@ public class SearchHistoryRequest {
     @Size(max = 500, message = "Query must be less than 500 characters")
     private String query;
 
-    public Integer getUserId() { return userId; }
-    public void setUserId(Integer userId) { this.userId = userId; }
+    public Integer getUserId() {
+        return userId;
+    }
 
-    public String getQuery() { return query; }
-    public void setQuery(String query) { this.query = query; }
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
+
+    public String getQuery() {
+        return query;
+    }
+
+    public void setQuery(String query) {
+        this.query = query;
+    }
 }

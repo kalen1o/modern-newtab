@@ -10,7 +10,15 @@ public class AuthResponse {
         this.refreshToken = refreshToken;
     }
 
-    public String getToken() { return token; }
-    public String getRefreshToken() { return refreshToken; }
-    public String getType() { return type; }
+    public String getToken() {
+        return token;
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public String getType() {
+        return type;
+    }
 }

@@ -47,34 +47,79 @@ public class UserPreferences {
     }
 
     private void setDefaults() {
-        if (theme == null) theme = "light";
-        if (backgroundType == null) backgroundType = "image";
-        if (showNews == null) showNews = true;
-        if (showSponsors == null) showSponsors = true;
-        if (showHistory == null) showHistory = true;
+        if (theme == null)
+            theme = "light";
+        if (backgroundType == null)
+            backgroundType = "image";
+        if (showNews == null)
+            showNews = true;
+        if (showSponsors == null)
+            showSponsors = true;
+        if (showHistory == null)
+            showHistory = true;
     }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getId() {
+        return id;
+    }
 
-    public Integer getUserId() { return userId; }
-    public void setUserId(Integer userId) { this.userId = userId; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public String getTheme() { return theme; }
-    public void setTheme(String theme) { this.theme = theme; }
+    public Integer getUserId() {
+        return userId;
+    }
 
-    public String getBackgroundType() { return backgroundType; }
-    public void setBackgroundType(String backgroundType) { this.backgroundType = backgroundType; }
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
 
-    public Boolean getShowNews() { return showNews; }
-    public void setShowNews(Boolean showNews) { this.showNews = showNews; }
+    public String getTheme() {
+        return theme;
+    }
 
-    public Boolean getShowSponsors() { return showSponsors; }
-    public void setShowSponsors(Boolean showSponsors) { this.showSponsors = showSponsors; }
+    public void setTheme(String theme) {
+        this.theme = theme;
+    }
 
-    public Boolean getShowHistory() { return showHistory; }
-    public void setShowHistory(Boolean showHistory) { this.showHistory = showHistory; }
+    public String getBackgroundType() {
+        return backgroundType;
+    }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setBackgroundType(String backgroundType) {
+        this.backgroundType = backgroundType;
+    }
+
+    public Boolean getShowNews() {
+        return showNews;
+    }
+
+    public void setShowNews(Boolean showNews) {
+        this.showNews = showNews;
+    }
+
+    public Boolean getShowSponsors() {
+        return showSponsors;
+    }
+
+    public void setShowSponsors(Boolean showSponsors) {
+        this.showSponsors = showSponsors;
+    }
+
+    public Boolean getShowHistory() {
+        return showHistory;
+    }
+
+    public void setShowHistory(Boolean showHistory) {
+        this.showHistory = showHistory;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
 }

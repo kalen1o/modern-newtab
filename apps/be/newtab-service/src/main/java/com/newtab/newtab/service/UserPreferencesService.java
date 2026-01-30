@@ -33,11 +33,16 @@ public class UserPreferencesService {
                     return newPrefs;
                 });
 
-        if (request.getTheme() != null) preferences.setTheme(request.getTheme());
-        if (request.getBackgroundType() != null) preferences.setBackgroundType(request.getBackgroundType());
-        if (request.getShowNews() != null) preferences.setShowNews(request.getShowNews());
-        if (request.getShowSponsors() != null) preferences.setShowSponsors(request.getShowSponsors());
-        if (request.getShowHistory() != null) preferences.setShowHistory(request.getShowHistory());
+        if (request.getTheme() != null)
+            preferences.setTheme(request.getTheme());
+        if (request.getBackgroundType() != null)
+            preferences.setBackgroundType(request.getBackgroundType());
+        if (request.getShowNews() != null)
+            preferences.setShowNews(request.getShowNews());
+        if (request.getShowSponsors() != null)
+            preferences.setShowSponsors(request.getShowSponsors());
+        if (request.getShowHistory() != null)
+            preferences.setShowHistory(request.getShowHistory());
 
         return userPreferencesRepository.save(preferences);
     }

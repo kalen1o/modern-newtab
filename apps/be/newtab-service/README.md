@@ -16,12 +16,19 @@ Main NewTab service for search history, sponsors, and news articles built with S
 - News article caching and retrieval
 - User preferences management
 - Background job ready for news fetching
+- Interactive API documentation with Swagger UI
 
 ## Configuration
 
 Port: 8082
 
 Database: PostgreSQL (newtab)
+
+## API Documentation
+
+Interactive API documentation is available at:
+- **Swagger UI**: http://localhost:8082/swagger-ui.html
+- **OpenAPI JSON**: http://localhost:8082/v3/api-docs
 
 ## API Endpoints
 

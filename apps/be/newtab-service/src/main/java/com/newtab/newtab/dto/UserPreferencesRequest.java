@@ -12,21 +12,51 @@ public class UserPreferencesRequest {
     private Boolean showSponsors;
     private Boolean showHistory;
 
-    public Integer getUserId() { return userId; }
-    public void setUserId(Integer userId) { this.userId = userId; }
+    public Integer getUserId() {
+        return userId;
+    }
 
-    public String getTheme() { return theme; }
-    public void setTheme(String theme) { this.theme = theme; }
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
 
-    public String getBackgroundType() { return backgroundType; }
-    public void setBackgroundType(String backgroundType) { this.backgroundType = backgroundType; }
+    public String getTheme() {
+        return theme;
+    }
 
-    public Boolean getShowNews() { return showNews; }
-    public void setShowNews(Boolean showNews) { this.showNews = showNews; }
+    public void setTheme(String theme) {
+        this.theme = theme;
+    }
 
-    public Boolean getShowSponsors() { return showSponsors; }
-    public void setShowSponsors(Boolean showSponsors) { this.showSponsors = showSponsors; }
+    public String getBackgroundType() {
+        return backgroundType;
+    }
 
-    public Boolean getShowHistory() { return showHistory; }
-    public void setShowHistory(Boolean showHistory) { this.showHistory = showHistory; }
+    public void setBackgroundType(String backgroundType) {
+        this.backgroundType = backgroundType;
+    }
+
+    public Boolean getShowNews() {
+        return showNews;
+    }
+
+    public void setShowNews(Boolean showNews) {
+        this.showNews = showNews;
+    }
+
+    public Boolean getShowSponsors() {
+        return showSponsors;
+    }
+
+    public void setShowSponsors(Boolean showSponsors) {
+        this.showSponsors = showSponsors;
+    }
+
+    public Boolean getShowHistory() {
+        return showHistory;
+    }
+
+    public void setShowHistory(Boolean showHistory) {
+        this.showHistory = showHistory;
+    }
 }

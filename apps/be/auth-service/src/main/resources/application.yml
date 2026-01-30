@@ -6,7 +6,7 @@ spring:
     name: auth-service
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/newtab
+    url: jdbc:postgresql://localhost:5432/newtab?reWriteBatchedInserts=true
     username: newtab
     password: newtab
     driver-class-name: org.postgresql.Driver
@@ -23,6 +23,7 @@ spring:
     enabled: true
     baseline-on-migrate: true
     locations: classpath:db/migration
+    table: auth_schema_history
 
 jwt:
   secret: ${JWT_SECRET:your-super-secret-key-change-this-in-production-min-256-bits}

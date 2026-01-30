@@ -18,12 +18,19 @@ Authentication service for NewTab application built with Spring Boot 3.2.
 - JWT token validation
 - Password hashing with BCrypt
 - Token refresh endpoint
+- Interactive API documentation with Swagger UI
 
 ## Configuration
 
 Port: 8081
 
 Database: PostgreSQL (newtab)
+
+## API Documentation
+
+Interactive API documentation is available at:
+- **Swagger UI**: http://localhost:8081/swagger-ui.html
+- **OpenAPI JSON**: http://localhost:8081/v3/api-docs
 
 ## API Endpoints
 
