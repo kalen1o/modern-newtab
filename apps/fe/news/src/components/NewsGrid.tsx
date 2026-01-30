@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { NewsArticle, PageResponse } from '../types'
 import { newsApi } from '../api/news'
 
@@ -9,15 +9,9 @@ function NewsGrid() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    loadNews()
-  }, [currentPage])
-
-  const loadNews = async () => {
+  const loadNews = useCallback(async () => {
     try {
-      console.log('Loading news page:', currentPage)
       const data = await newsApi.getNews(currentPage, pageSize)
-      console.log('API response:', data)
 
       if (!data) {
         throw new Error('No data received from API')
@@ -32,7 +26,11 @@ function NewsGrid() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [currentPage, pageSize])
+
+  useEffect(() => {
+    loadNews()
+  }, [loadNews])
 
   const handlePageChange = (newPage: number) => {
     if (newPage >= 0 && (!pageData || newPage < pageData.totalPages)) {
@@ -42,7 +40,6 @@ function NewsGrid() {
   }
 
   const articles = pageData?.content ?? []
-  console.log('Articles array:', articles, 'Type:', typeof articles)
 
   if (loading) {
     return (
