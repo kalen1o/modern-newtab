@@ -1,5 +1,6 @@
 import { useState, Suspense, lazy, useEffect, useRef } from 'react'
 import { ErrorBoundary } from './components/ErrorBoundary'
+import { motion, AnimatePresence } from 'framer-motion'
 
 // Lazy load microfrontends with proper error handling
 const AutocompleteInput = lazy(() => import('autocomplete/Autocomplete'))
@@ -8,6 +9,7 @@ const NewsGrid = lazy(() => import('news/News'))
 function App() {
   const [showNews, setShowNews] = useState(true)
   const [bgOpacity, setBgOpacity] = useState(0)
+  const [isInputFocused, setIsInputFocused] = useState(false)
   const newsSectionRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -40,7 +42,7 @@ function App() {
 
   return (
     <div
-      className="flex flex-col min-h-screen relative"
+      className="flex flex-col min-h-screen relative overflow-hidden"
       style={{
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         '--bg-opacity': bgOpacity
@@ -54,40 +56,68 @@ function App() {
       />
 
       <div className="flex flex-col h-screen relative z-[5]">
-        <header className="flex justify-between items-center px-8 py-6 bg-black/30 backdrop-blur-[10px] border-b border-white/10 flex-shrink-0">
-          <h1 className="m-0 text-4xl font-bold text-white drop-shadow-md">
-            NewTab
-          </h1>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setShowNews(!showNews)}
-              className="px-4 py-2 bg-white/10 text-white border border-white/20 rounded-lg cursor-pointer text-sm transition-colors hover:bg-white/20"
+        <AnimatePresence>
+          {!isInputFocused && (
+            <motion.header
+              initial={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className="flex justify-between items-center px-8 py-6 bg-black/30 backdrop-blur-[10px] border-b border-white/10 flex-shrink-0"
             >
-              {showNews ? 'Hide News' : 'Show News'}
-            </button>
-          </div>
-        </header>
+              <h1 className="m-0 text-4xl font-bold text-white drop-shadow-md">
+                NewTab
+              </h1>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setShowNews(!showNews)}
+                  className="px-4 py-2 bg-white/10 text-white border border-white/20 rounded-lg cursor-pointer text-sm transition-colors hover:bg-white/20"
+                >
+                  {showNews ? 'Hide News' : 'Show News'}
+                </button>
+              </div>
+            </motion.header>
+          )}
+        </AnimatePresence>
 
-        <section className="flex-1 flex flex-col justify-center items-center px-8">
-          <div className="w-full max-w-[600px] flex flex-col items-center">
+        <section className={`flex-1 flex flex-col justify-center items-center px-8 transition-all duration-300 ${isInputFocused ? 'absolute inset-0 z-[10]' : ''}`}>
+          <motion.div
+            className="w-full max-w-[600px] flex flex-col items-center"
+            animate={{
+              width: isInputFocused ? '90vw' : '600px',
+              maxWidth: isInputFocused ? '800px' : '600px',
+              y: isInputFocused ? '-100px' : 0
+            }}
+            transition={{
+              duration: 0.4,
+              ease: 'easeInOut'
+            }}
+          >
             <ErrorBoundary appName="Search Component">
               <Suspense fallback={<div className="text-white/70 text-lg py-8 text-center">Loading search...</div>}>
-                <AutocompleteInput />
+                <AutocompleteInput onFocusChange={setIsInputFocused} />
               </Suspense>
             </ErrorBoundary>
-          </div>
+          </motion.div>
         </section>
       </div>
 
-      {showNews && (
-        <section ref={newsSectionRef} className="relative w-full px-8 py-8">
-          <ErrorBoundary appName="News Component">
-            <Suspense fallback={<div className="text-white/70 text-lg py-8 text-center">Loading news...</div>}>
-              <NewsGrid />
-            </Suspense>
-          </ErrorBoundary>
-        </section>
-      )}
+      <AnimatePresence>
+        {showNews && !isInputFocused && (
+          <motion.section
+            ref={newsSectionRef}
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0, y: 50 }}
+            transition={{ duration: 0.3 }}
+            className="relative w-full px-8 py-8"
+          >
+            <ErrorBoundary appName="News Component">
+              <Suspense fallback={<div className="text-white/70 text-lg py-8 text-center">Loading news...</div>}>
+                <NewsGrid />
+              </Suspense>
+            </ErrorBoundary>
+          </motion.section>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

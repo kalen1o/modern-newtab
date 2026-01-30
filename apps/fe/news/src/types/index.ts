@@ -1,20 +1,5 @@
-export interface NewsArticle {
-    id: number
-    title: string
-    description: string
-    url: string
-    source?: string
-    publishedAt?: string
-    imageUrl?: string
-    createdAt: string
-}
+import { NewsArticle, PageResponse as SharedPageResponse } from '@libs/shared'
 
-export interface PageResponse<T> {
-    content: T[]
-    currentPage: number
-    pageSize: number
-    totalElements: number
-    totalPages: number
-    hasNext: boolean
-    hasPrevious: boolean
-}
+export type { NewsArticle }
+
+export interface PageResponse<T> extends SharedPageResponse<T> { }

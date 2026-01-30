@@ -23,7 +23,13 @@
         "noUnusedParameters": true,
         "erasableSyntaxOnly": true,
         "noFallthroughCasesInSwitch": true,
-        "noUncheckedSideEffectImports": true
+        "noUncheckedSideEffectImports": true,
+        "baseUrl": ".",
+        "paths": {
+            "@libs/shared": [
+                "../../../libs/shared/src"
+            ]
+        }
     },
     "include": [
         "src"

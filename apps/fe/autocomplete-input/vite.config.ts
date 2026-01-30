@@ -4,11 +4,7 @@ import federation from '@originjs/vite-plugin-federation'
 
 export default defineConfig({
     plugins: [
-        react({
-            babel: {
-                plugins: [['babel-plugin-react-compiler']],
-            },
-        }),
+        react(),
         federation({
             name: 'autocomplete',
             filename: 'remoteEntry.js',

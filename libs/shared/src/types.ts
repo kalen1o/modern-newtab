@@ -29,8 +29,9 @@ export interface NewsArticle {
     description?: string;
     url: string;
     source?: string;
-    published_at?: Date;
-    created_at: Date;
+    imageUrl?: string;
+    publishedAt?: Date;
+    createdAt: Date;
 }
 
 export interface UserPreferences {
@@ -43,4 +44,14 @@ export interface UserPreferences {
     show_history: boolean;
     created_at: Date;
     updated_at: Date;
+}
+
+export interface PageResponse<T> {
+    content: T[]
+    currentPage: number
+    pageSize: number
+    totalElements: number
+    totalPages: number
+    hasNext: boolean
+    hasPrevious: boolean
 }

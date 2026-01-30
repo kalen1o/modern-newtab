@@ -1,16 +1,27 @@
 import { useState, useEffect, useRef } from 'react'
+import { api } from '@libs/shared'
 
 interface AutocompleteInputProps {
   onSearch?: (query: string) => void
+  onFocusChange?: (isFocused: boolean) => void
 }
 
-function AutocompleteInput({ onSearch }: AutocompleteInputProps) {
+function AutocompleteInput({ onSearch, onFocusChange }: AutocompleteInputProps) {
   const [query, setQuery] = useState('')
   const [suggestions, setSuggestions] = useState<string[]>([])
   const [history, setHistory] = useState<string[]>([])
   const [showDropdown, setShowDropdown] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
+
+  const loadHistory = async () => {
+    try {
+      const data = await api.get<{ items: { query: string }[] }>('/api/history')
+      setHistory(data.items.map((item: { query: string }) => item.query))
+    } catch (error) {
+      console.error('Failed to load history:', error)
+    }
+  }
 
   useEffect(() => {
     loadHistory()
@@ -25,47 +36,19 @@ function AutocompleteInput({ onSearch }: AutocompleteInputProps) {
         !inputRef.current.contains(event.target as Node)
       ) {
         setShowDropdown(false)
+        if (onFocusChange) {
+          onFocusChange(false)
+        }
       }
     }
 
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
-
-  const loadHistory = async () => {
-    try {
-      const token = localStorage.getItem('authToken')
-      if (!token) return
-
-      const response = await fetch('http://localhost:8082/api/history', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        setHistory(data.items.map((item: { query: string }) => item.query))
-      }
-    } catch (error) {
-      console.error('Failed to load history:', error)
-    }
-  }
+  }, [onFocusChange])
 
   const saveToHistory = async (searchQuery: string) => {
     try {
-      const token = localStorage.getItem('authToken')
-      if (!token) return
-
-      await fetch('http://localhost:8082/api/history', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ query: searchQuery }),
-      })
-
+      await api.post('/api/history', { query: searchQuery })
       loadHistory()
     } catch (error) {
       console.error('Failed to save to history:', error)
@@ -119,7 +102,15 @@ function AutocompleteInput({ onSearch }: AutocompleteInputProps) {
           value={query}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
-          onFocus={() => query && setShowDropdown(true)}
+          onFocus={() => {
+            if (query) setShowDropdown(true)
+            if (onFocusChange) onFocusChange(true)
+          }}
+          onBlur={() => {
+            if (!showDropdown && onFocusChange) {
+              onFocusChange(false)
+            }
+          }}
           placeholder="Search web..."
           className="flex-1 bg-transparent border-none px-4 py-3 text-base text-white outline-none placeholder-white/60"
         />
