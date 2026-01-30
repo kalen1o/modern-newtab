@@ -1,0 +1,48 @@
+{
+    "name": "autocomplete-input",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "sourceRoot": "apps/fe/autocomplete-input/src",
+    "projectType": "application",
+    "targets": {
+        "serve": {
+            "executor": "@nx/vite:dev",
+            "options": {
+                "buildTarget": "autocomplete-input:build",
+                "port": 5001
+            }
+        },
+        "build": {
+            "executor": "@nx/vite:build",
+            "options": {
+                "outputPath": "dist/apps/fe/autocomplete-input",
+                "configFile": "apps/fe/autocomplete-input/vite.config.ts"
+            },
+            "configurations": {
+                "production": {
+                    "mode": "production"
+                }
+            }
+        },
+        "test": {
+            "executor": "@nx/vite:test",
+            "options": {
+                "passWithNoTests": true
+            }
+        },
+        "lint": {
+            "executor": "@nx/eslint:lint",
+            "outputs": [
+                "{options.outputFile}"
+            ],
+            "options": {
+                "lintFilePatterns": [
+                    "apps/fe/autocomplete-input/**/*.{ts,tsx,js,jsx}"
+                ]
+            }
+        }
+    },
+    "tags": [
+        "type:frontend",
+        "scope:autocomplete"
+    ]
+}

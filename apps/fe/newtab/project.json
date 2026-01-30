@@ -1,0 +1,48 @@
+{
+    "name": "newtab-shell",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "sourceRoot": "apps/fe/newtab/src",
+    "projectType": "application",
+    "targets": {
+        "serve": {
+            "executor": "@nx/vite:dev",
+            "options": {
+                "buildTarget": "newtab-shell:build",
+                "port": 5173
+            }
+        },
+        "build": {
+            "executor": "@nx/vite:build",
+            "options": {
+                "outputPath": "dist/apps/fe/newtab",
+                "configFile": "apps/fe/newtab/vite.config.ts"
+            },
+            "configurations": {
+                "production": {
+                    "mode": "production"
+                }
+            }
+        },
+        "test": {
+            "executor": "@nx/vite:test",
+            "options": {
+                "passWithNoTests": true
+            }
+        },
+        "lint": {
+            "executor": "@nx/eslint:lint",
+            "outputs": [
+                "{options.outputFile}"
+            ],
+            "options": {
+                "lintFilePatterns": [
+                    "apps/fe/newtab/**/*.{ts,tsx,js,jsx}"
+                ]
+            }
+        }
+    },
+    "tags": [
+        "type:frontend",
+        "scope:shell"
+    ]
+}

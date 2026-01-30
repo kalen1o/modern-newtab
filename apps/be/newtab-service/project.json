@@ -1,0 +1,43 @@
+{
+    "name": "newtab-service",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "sourceRoot": "apps/be/newtab-service/src",
+    "projectType": "application",
+    "targets": {
+        "serve": {
+            "executor": "@nx/js:node",
+            "options": {
+                "buildTarget": "newtab-service:build"
+            },
+            "configurations": {
+                "production": {
+                    "buildTarget": "newtab-service:build:production"
+                }
+            }
+        },
+        "build": {
+            "executor": "nx:run-commands",
+            "options": {
+                "commands": [
+                    "cd apps/be/newtab-service",
+                    "mvn clean package -DskipTests"
+                ],
+                "parallel": false
+            }
+        },
+        "test": {
+            "executor": "nx:run-commands",
+            "options": {
+                "commands": [
+                    "cd apps/be/newtab-service",
+                    "mvn test"
+                ],
+                "parallel": false
+            }
+        }
+    },
+    "tags": [
+        "type:backend",
+        "scope:newtab"
+    ]
+}

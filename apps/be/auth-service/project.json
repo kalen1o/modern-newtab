@@ -1,0 +1,43 @@
+{
+    "name": "auth-service",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "sourceRoot": "apps/be/auth-service/src",
+    "projectType": "application",
+    "targets": {
+        "serve": {
+            "executor": "@nx/js:node",
+            "options": {
+                "buildTarget": "auth-service:build"
+            },
+            "configurations": {
+                "production": {
+                    "buildTarget": "auth-service:build:production"
+                }
+            }
+        },
+        "build": {
+            "executor": "nx:run-commands",
+            "options": {
+                "commands": [
+                    "cd apps/be/auth-service",
+                    "mvn clean package -DskipTests"
+                ],
+                "parallel": false
+            }
+        },
+        "test": {
+            "executor": "nx:run-commands",
+            "options": {
+                "commands": [
+                    "cd apps/be/auth-service",
+                    "mvn test"
+                ],
+                "parallel": false
+            }
+        }
+    },
+    "tags": [
+        "type:backend",
+        "scope:auth"
+    ]
+}

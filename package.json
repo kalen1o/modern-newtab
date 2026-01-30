@@ -1,0 +1,34 @@
+{
+    "name": "newtab-monorepo",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+        "dev": "nx run-many -t serve -p newtab-shell autocomplete-input",
+        "dev:shell": "nx run newtab-shell:serve",
+        "dev:autocomplete": "nx run autocomplete-input:serve",
+        "build": "nx run-many -t build -p newtab-shell autocomplete-input auth-service newtab-service",
+        "build:fe": "nx run-many -t build -p newtab-shell autocomplete-input",
+        "build:be": "nx run-many -t build -p auth-service newtab-service",
+        "build:shared": "nx run shared:build",
+        "test": "nx run-many -t test --all",
+        "test:fe": "nx run-many -t test -p newtab-shell autocomplete-input",
+        "test:be": "nx run-many -t test -p auth-service newtab-service",
+        "lint": "nx run-many -t lint --all",
+        "graph": "nx graph",
+        "affected": "nx affected -t build",
+        "nx": "nx"
+    },
+    "devDependencies": {
+        "@nx/js": "^22.4.3",
+        "@nx/react": "^22.4.3",
+        "@nx/workspace": "^22.4.3",
+        "@nx/vite": "^22.4.3",
+        "@nx/eslint": "^22.4.3",
+        "nx": "^22.4.3",
+        "typescript": "^5.9.3"
+    },
+    "engines": {
+        "node": ">=18.0.0",
+        "npm": ">=9.0.0"
+    }
+}

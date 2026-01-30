@@ -1,0 +1,32 @@
+{
+    "version": 2,
+    "npmScope": "newtab",
+    "affected": {
+        "defaultBase": "main"
+    },
+    "installation": {
+        "version": "22.4.3"
+    },
+    "cli": {
+        "packageManager": "pnpm"
+    },
+    "plugins": [
+        {
+            "plugin": "@nx/react",
+            "options": {
+                "buildTargetName": "build",
+                "devTargetName": "serve",
+                "startTargetName": "serve"
+            }
+        },
+        {
+            "plugin": "@nx/js",
+            "options": {
+                "buildTargetName": "build",
+                "testTargetName": "test"
+            }
+        }
+    ],
+    "defaultProject": "newtab-shell",
+    "$schema": "https://raw.githubusercontent.com/nrwl/monorepo-examples/main/packages/nx-plugin/nx.json"
+}
