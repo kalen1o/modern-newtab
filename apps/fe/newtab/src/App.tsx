@@ -79,13 +79,19 @@ function App() {
           )}
         </AnimatePresence>
 
-        <section className={`flex-1 flex flex-col justify-center items-center px-8 transition-all duration-300 ${isInputFocused ? 'absolute inset-0 z-[10]' : ''}`}>
+        <section className={`flex-1 flex flex-col px-8 transition-all duration-300 items-center ${isInputFocused ? 'absolute inset-0 z-[10] p-0 justify-start' : ''}`}>
           <motion.div
-            className="w-full max-w-[600px] flex flex-col items-center"
+            className="w-full max-w-[600px]"
+            initial={{
+              width: '600px',
+              maxWidth: '600px',
+              marginTop: 32,
+              scale: 1
+            }}
             animate={{
               width: isInputFocused ? '90vw' : '600px',
-              maxWidth: isInputFocused ? '800px' : '600px',
-              y: isInputFocused ? '-100px' : 0
+              marginTop: isInputFocused ? '35vh' : '32px',
+              scale: isInputFocused ? 1.1 : 1
             }}
             transition={{
               duration: 0.4,
