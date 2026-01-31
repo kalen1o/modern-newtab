@@ -1,0 +1,5 @@
+# Environment variables
+.env
+
+# Override .gitignore at parent level
+!env.example
