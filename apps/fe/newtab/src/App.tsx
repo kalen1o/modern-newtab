@@ -62,10 +62,10 @@ function App() {
         <AnimatePresence>
           {!isInputFocused && (
             <motion.header
-              initial={false}
+              initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 0.3 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
               className="flex justify-between items-center px-8 py-6 flex-shrink-0"
             >
               <h1 className="m-0 text-4xl font-bold text-white drop-shadow-md">Aske</h1>
@@ -86,17 +86,27 @@ function App() {
           className={`flex-1 flex flex-col px-8 transition-all items-center ${isInputFocused ? "absolute inset-0 z-[10] p-0 justify-start" : ""}`}
         >
           <motion.div
+            className="w-full"
+            initial={{ height: "32px" }}
+            animate={isInputFocused ? { height: "40vh" } : { height: "32px" }}
+            transition={{
+              duration: 0.3,
+              ease: "easeInOut",
+            }}
+          />
+          <motion.div
             className="w-full max-w-[600px]"
             initial={{
               width: "600px",
               maxWidth: "600px",
-              marginTop: "32px",
               scale: 1,
             }}
-            animate={{
-              width: isInputFocused ? "90vw" : "600px",
-              scale: isInputFocused ? 1.1 : 1,
-              ...(isInputFocused ? { marginTop: "35vh" } : { marginTop: "32px" }),
+            animate={isInputFocused ? {
+              width: "90vw",
+              scale: 1.1,
+            } : {
+              width: "600px",
+              scale: 1,
             }}
             transition={{
               duration: 0.3,
