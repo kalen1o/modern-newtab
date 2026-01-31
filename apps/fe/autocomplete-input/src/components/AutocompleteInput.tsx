@@ -1,4 +1,4 @@
-import { api } from "@libs/shared"
+import { api } from "../api/client"
 import { Search } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
 
