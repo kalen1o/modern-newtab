@@ -1,5 +1,5 @@
-import { X } from "lucide-react"
 import { motion } from "framer-motion"
+import { X } from "lucide-react"
 
 type SettingsProps = {
   isOpen: boolean
@@ -33,9 +33,7 @@ export function Settings({ isOpen, onClose, showNews, onShowNewsChange }: Settin
       >
         <div className="flex flex-col h-full p-6">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
-              Settings
-            </h2>
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Settings</h2>
             <button
               type="button"
               onClick={onClose}
@@ -47,9 +45,7 @@ export function Settings({ isOpen, onClose, showNews, onShowNewsChange }: Settin
           </div>
           <div className="space-y-4">
             <label className="flex items-center justify-between gap-4 cursor-pointer">
-              <span className="text-sm text-slate-700 dark:text-slate-300">
-                Show news section
-              </span>
+              <span className="text-sm text-slate-700 dark:text-slate-300">Show news section</span>
               <button
                 type="button"
                 onClick={() => onShowNewsChange(!showNews)}

@@ -3,6 +3,7 @@ import { Settings as SettingsIcon } from "lucide-react"
 import { lazy, Suspense, useEffect, useRef, useState } from "react"
 import { ErrorBoundary } from "./components/ErrorBoundary"
 import { Settings } from "./components/Settings"
+import { useAuth } from "./hooks/useAuth"
 
 // Lazy load microfrontends with proper error handling
 const AutocompleteInput = lazy(() => import("autocomplete/Autocomplete"))
@@ -14,6 +15,15 @@ function App() {
   const [bgOpacity, setBgOpacity] = useState(0)
   const [isInputFocused, setIsInputFocused] = useState(false)
   const newsSectionRef = useRef<HTMLDivElement>(null)
+  const { isAuthenticated, loading: authLoading, getGuestToken } = useAuth()
+
+  useEffect(() => {
+    if (!isAuthenticated && !authLoading) {
+      getGuestToken().catch((error) => {
+        console.error("Failed to get guest token:", error)
+      })
+    }
+  }, [isAuthenticated, authLoading, getGuestToken])
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -65,23 +75,26 @@ function App() {
         <AnimatePresence>
           {!isInputFocused && (
             <motion.header
-              initial={{ opacity: 0, scale: 0.9 }}
+              initial={{ opacity: 1, scale: 1 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
               className="flex justify-between items-center px-8 py-6 flex-shrink-0"
             >
               <div className="flex items-center gap-3">
-                <img src="/husky.png" alt="" className="h-10 w-10 shrink-0 rounded-full object-cover" />
+                <img
+                  src="/husky.png"
+                  alt=""
+                  className="h-10 w-10 shrink-0 rounded-full object-cover"
+                />
                 <h1
-                className="m-0 text-4xl font-bold text-slate-900"
-                style={{
-                  textShadow:
-                    "0 1px 2px rgba(255,255,255,0.9), 0 0 1px rgba(255,255,255,0.6)",
-                }}
-              >
-                aske
-              </h1>
+                  className="m-0 text-4xl font-bold text-slate-900"
+                  style={{
+                    textShadow: "0 1px 2px rgba(255,255,255,0.9), 0 0 1px rgba(255,255,255,0.6)",
+                  }}
+                >
+                  aske
+                </h1>
               </div>
               <div className="flex gap-2">
                 <button
@@ -116,13 +129,17 @@ function App() {
               maxWidth: "600px",
               scale: 1,
             }}
-            animate={isInputFocused ? {
-              width: "90vw",
-              scale: 1.1,
-            } : {
-              width: "600px",
-              scale: 1,
-            }}
+            animate={
+              isInputFocused
+                ? {
+                    width: "90vw",
+                    scale: 1.1,
+                  }
+                : {
+                    width: "600px",
+                    scale: 1,
+                  }
+            }
             transition={{
               duration: 0.3,
               ease: "easeInOut",

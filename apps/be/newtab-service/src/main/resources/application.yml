@@ -26,6 +26,9 @@ spring:
     validate-on-migrate: false
     table: newtab_schema_history
 
+jwt:
+  secret: ${JWT_SECRET:your-super-secret-key-change-this-in-production-min-256-bits}
+
 logging:
   level:
     com.newtab.newtab: DEBUG

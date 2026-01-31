@@ -20,6 +20,8 @@
         "test:be": "nx run-many -t test -p auth-service newtab-service",
         "lint": "biome check .",
         "lint:fix": "biome check --write .",
+        "format": "biome format --write .",
+        "format:check": "biome format .",
         "graph": "nx graph",
         "affected": "nx affected -t build",
         "nx": "nx"

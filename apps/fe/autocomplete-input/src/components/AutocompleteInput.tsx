@@ -1,6 +1,6 @@
-import { api } from "../api/client"
 import { Search } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
+import { api } from "../api/client"
 
 interface AutocompleteInputProps {
   logoSrc?: string
@@ -22,15 +22,14 @@ function AutocompleteInput({
   const inputRef = useRef<HTMLInputElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
-    const loadHistory = useCallback(async () => {
-        try {
-        const data = await api.get<{ items: { query: string }[] }>("/api/history")
-        setHistory(data.items.map((item: { query: string }) => item.query))
-        } catch (error) {
-        console.error("Failed to load history:", error)
-        }
-    }, [])
-
+  const loadHistory = useCallback(async () => {
+    try {
+      const data = await api.get<{ items: { query: string }[] }>("/api/history")
+      setHistory(data.items.map((item: { query: string }) => item.query))
+    } catch (error) {
+      console.error("Failed to load history:", error)
+    }
+  }, [])
 
   useEffect(() => {
     loadHistory()
@@ -111,11 +110,7 @@ function AutocompleteInput({
   return (
     <div className="relative w-full max-w-[600px]">
       <div className="flex items-center gap-2 bg-black backdrop-blur-[10px] p-2 rounded-xl border border-white/20">
-        <img
-          src={logoSrc}
-          alt=""
-          className="h-8 w-8 shrink-0 rounded-full object-cover"
-        />
+        <img src={logoSrc} alt="" className="h-8 w-8 shrink-0 rounded-full object-cover" />
         <input
           ref={inputRef}
           type="text"
@@ -152,13 +147,11 @@ function AutocompleteInput({
         <div
           ref={dropdownRef}
           className={`absolute top-[calc(100%+0.5rem)] left-0 right-0 bg-black/90 backdrop-blur-[20px] rounded-lg border border-white/10 overflow-hidden z-[1000] max-h-[400px] overflow-y-auto ${
-            isDropdownClosing
-              ? "animate-dropdown-exit"
-              : "animate-dropdown-enter"
+            isDropdownClosing ? "animate-dropdown-exit" : "animate-dropdown-enter"
           }`}
           style={{
             animationDuration: "200ms",
-            animationFillMode: "forwards"
+            animationFillMode: "forwards",
           }}
         >
           {query && suggestions.length > 0 ? (

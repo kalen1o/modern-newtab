@@ -1,49 +1,46 @@
 {
-    "name": "newtab",
-    "$schema": "../../node_modules/nx/schemas/project-schema.json",
-    "sourceRoot": "apps/fe/newtab/src",
-    "projectType": "application",
-    "targets": {
-        "serve": {
-            "executor": "nx:run-commands",
-            "options": {
-                "command": "pnpm dev",
-                "cwd": "apps/fe/newtab"
-            }
-        },
-        "build": {
-            "executor": "nx:run-commands",
-            "options": {
-                "command": "pnpm build",
-                "cwd": "apps/fe/newtab"
-            },
-            "configurations": {
-                "production": {
-                    "mode": "production"
-                }
-            }
-        },
-        "test": {
-            "executor": "@nx/vite:test",
-            "options": {
-                "passWithNoTests": true
-            }
-        },
-        "biome:check": {
-            "executor": "nx:run-commands",
-            "options": {
-                "command": "biome check apps/fe/newtab"
-            }
-        },
-        "biome:fix": {
-            "executor": "nx:run-commands",
-            "options": {
-                "command": "biome check --write apps/fe/newtab"
-            }
-        }
+  "name": "newtab",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/fe/newtab/src",
+  "projectType": "application",
+  "targets": {
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm dev",
+        "cwd": "apps/fe/newtab"
+      }
     },
-    "tags": [
-        "type:frontend",
-        "scope:shell"
-    ]
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm build",
+        "cwd": "apps/fe/newtab"
+      },
+      "configurations": {
+        "production": {
+          "mode": "production"
+        }
+      }
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "options": {
+        "passWithNoTests": true
+      }
+    },
+    "biome:check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "biome check apps/fe/newtab"
+      }
+    },
+    "biome:fix": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "biome check --write apps/fe/newtab"
+      }
+    }
+  },
+  "tags": ["type:frontend", "scope:shell"]
 }

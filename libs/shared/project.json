@@ -1,42 +1,37 @@
 {
-    "name": "shared",
-    "$schema": "../../node_modules/nx/schemas/project-schema.json",
-    "sourceRoot": "libs/shared/src",
-    "projectType": "library",
-    "targets": {
-        "build": {
-            "executor": "@nx/js:tsc",
-            "outputs": [
-                "{options.outputPath}"
-            ],
-            "options": {
-                "outputPath": "dist/libs/shared",
-                "main": "libs/shared/src/index.ts",
-                "tsConfig": "libs/shared/tsconfig.json",
-                "assets": []
-            }
-        },
-        "test": {
-            "executor": "@nx/vite:test",
-            "options": {
-                "passWithNoTests": true
-            }
-        },
-        "biome:check": {
-            "executor": "nx:run-commands",
-            "options": {
-                "command": "biome check libs/shared"
-            }
-        },
-        "biome:fix": {
-            "executor": "nx:run-commands",
-            "options": {
-                "command": "biome check --write libs/shared"
-            }
-        }
+  "name": "shared",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/shared",
+        "main": "libs/shared/src/index.ts",
+        "tsConfig": "libs/shared/tsconfig.json",
+        "assets": []
+      }
     },
-    "tags": [
-        "type:library",
-        "scope:shared"
-    ]
+    "test": {
+      "executor": "@nx/vite:test",
+      "options": {
+        "passWithNoTests": true
+      }
+    },
+    "biome:check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "biome check libs/shared"
+      }
+    },
+    "biome:fix": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "biome check --write libs/shared"
+      }
+    }
+  },
+  "tags": ["type:library", "scope:shared"]
 }

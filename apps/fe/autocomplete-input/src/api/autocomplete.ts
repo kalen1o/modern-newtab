@@ -1,5 +1,4 @@
 import { api } from "./client"
-import type { PageResponse } from "@libs/shared"
 
 export interface HistoryItem {
     query: string
