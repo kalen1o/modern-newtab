@@ -110,7 +110,7 @@ function AutocompleteInput({
 
   return (
     <div className="relative w-full max-w-[600px]">
-      <div className="flex items-center gap-2 bg-white/10 backdrop-blur-[10px] p-2 rounded-xl border border-white/20">
+      <div className="flex items-center gap-2 bg-black backdrop-blur-[10px] p-2 rounded-xl border border-white/20">
         <img
           src={logoSrc}
           alt=""

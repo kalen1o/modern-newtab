@@ -15,7 +15,7 @@ export default defineConfig({
         autocomplete: "http://localhost:5001/assets/remoteEntry.js",
         news: "http://localhost:5002/assets/remoteEntry.js",
       },
-      shared: ["react", "react-dom"],
+      shared: ["react", "react-dom", "lucide-react"],
     }),
   ],
   build: {
@@ -29,6 +29,6 @@ export default defineConfig({
     cors: true,
   },
   resolve: {
-    dedupe: ["react", "react-dom"],
+    dedupe: ["react", "react-dom", "lucide-react"],
   },
 })

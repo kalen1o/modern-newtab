@@ -1,6 +1,8 @@
 import { AnimatePresence, motion } from "framer-motion"
+import { Settings as SettingsIcon } from "lucide-react"
 import { lazy, Suspense, useEffect, useRef, useState } from "react"
 import { ErrorBoundary } from "./components/ErrorBoundary"
+import { Settings } from "./components/Settings"
 
 // Lazy load microfrontends with proper error handling
 const AutocompleteInput = lazy(() => import("autocomplete/Autocomplete"))
@@ -8,6 +10,7 @@ const NewsGrid = lazy(() => import("news/News"))
 
 function App() {
   const [showNews, setShowNews] = useState(true)
+  const [settingsOpen, setSettingsOpen] = useState(false)
   const [bgOpacity, setBgOpacity] = useState(0)
   const [isInputFocused, setIsInputFocused] = useState(false)
   const newsSectionRef = useRef<HTMLDivElement>(null)
@@ -45,7 +48,7 @@ function App() {
       className="flex flex-col min-h-screen relative overflow-hidden"
       style={
         {
-          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          background: "linear-gradient(135deg, #e2e8f0 0%, #94a3b8 50%, #475569 100%)",
           "--bg-opacity": bgOpacity,
         } as React.CSSProperties
       }
@@ -68,14 +71,26 @@ function App() {
               transition={{ duration: 0.3, ease: "easeInOut" }}
               className="flex justify-between items-center px-8 py-6 flex-shrink-0"
             >
-              <h1 className="m-0 text-4xl font-bold text-white drop-shadow-md">Aske</h1>
+              <div className="flex items-center gap-3">
+                <img src="/husky.png" alt="" className="h-10 w-10 shrink-0 rounded-full object-cover" />
+                <h1
+                className="m-0 text-4xl font-bold text-slate-900"
+                style={{
+                  textShadow:
+                    "0 1px 2px rgba(255,255,255,0.9), 0 0 1px rgba(255,255,255,0.6)",
+                }}
+              >
+                aske
+              </h1>
+              </div>
               <div className="flex gap-2">
                 <button
                   type="button"
-                  onClick={() => setShowNews(!showNews)}
-                  className="px-4 py-2 bg-white/10 text-white border border-white/20 rounded-lg cursor-pointer text-sm transition-colors hover:bg-white/20"
+                  onClick={() => setSettingsOpen(true)}
+                  className="p-2 bg-white/10 text-white border border-white/20 rounded-lg cursor-pointer transition-colors hover:bg-white/20"
+                  aria-label="Open settings"
                 >
-                  {showNews ? "Hide News" : "Show News"}
+                  <SettingsIcon className="size-5" />
                 </button>
               </div>
             </motion.header>
@@ -141,6 +156,18 @@ function App() {
               </Suspense>
             </ErrorBoundary>
           </motion.section>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {settingsOpen && (
+          <Settings
+            key="settings"
+            isOpen={settingsOpen}
+            onClose={() => setSettingsOpen(false)}
+            showNews={showNews}
+            onShowNewsChange={setShowNews}
+          />
         )}
       </AnimatePresence>
     </div>

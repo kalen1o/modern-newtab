@@ -11,7 +11,7 @@ export default defineConfig({
       exposes: {
         "./Autocomplete": "./src/components/AutocompleteInput.tsx",
       },
-      shared: ["react", "react-dom"],
+      shared: ["react", "react-dom", "lucide-react"],
     }),
   ],
   build: {
@@ -29,6 +29,6 @@ export default defineConfig({
     cors: true,
   },
   resolve: {
-    dedupe: ["react", "react-dom"],
+    dedupe: ["react", "react-dom", "lucide-react"],
   },
 })
