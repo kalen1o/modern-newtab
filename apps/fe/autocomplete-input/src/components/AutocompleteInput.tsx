@@ -1,16 +1,24 @@
 import { api } from "@libs/shared"
+import { Search } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
 
 interface AutocompleteInputProps {
+  logoSrc?: string
   onSearch?: (query: string) => void
   onFocusChange?: (isFocused: boolean) => void
 }
 
-function AutocompleteInput({ onSearch, onFocusChange }: AutocompleteInputProps) {
+function AutocompleteInput({
+  logoSrc = "/husky.png",
+  onSearch,
+  onFocusChange,
+}: AutocompleteInputProps) {
   const [query, setQuery] = useState("")
   const [suggestions, setSuggestions] = useState<string[]>([])
   const [history, setHistory] = useState<string[]>([])
   const [showDropdown, setShowDropdown] = useState(false)
+  const [isDropdownClosing, setIsDropdownClosing] = useState(false)
+  const [isFocused, setIsFocused] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
@@ -36,10 +44,15 @@ function AutocompleteInput({ onSearch, onFocusChange }: AutocompleteInputProps) 
         inputRef.current &&
         !inputRef.current.contains(event.target as Node)
       ) {
-        setShowDropdown(false)
+        setIsDropdownClosing(true)
         if (onFocusChange) {
           onFocusChange(false)
         }
+        // Wait for animation to complete before removing from DOM
+        setTimeout(() => {
+          setShowDropdown(false)
+          setIsDropdownClosing(false)
+        }, 200)
       }
     }
 
@@ -65,8 +78,10 @@ function AutocompleteInput({ onSearch, onFocusChange }: AutocompleteInputProps) 
       const filtered = history.filter((h) => h.toLowerCase().includes(value.toLowerCase()))
       setSuggestions(filtered.slice(0, 5))
       setShowDropdown(true)
+      setIsDropdownClosing(false)
     } else {
-      setShowDropdown(false)
+      setIsDropdownClosing(true)
+      setTimeout(() => setShowDropdown(false), 200)
     }
   }
 
@@ -76,7 +91,8 @@ function AutocompleteInput({ onSearch, onFocusChange }: AutocompleteInputProps) 
 
     saveToHistory(finalQuery)
     setQuery("")
-    setShowDropdown(false)
+    setIsDropdownClosing(true)
+    setTimeout(() => setShowDropdown(false), 200)
 
     if (onSearch) {
       onSearch(finalQuery)
@@ -94,7 +110,12 @@ function AutocompleteInput({ onSearch, onFocusChange }: AutocompleteInputProps) 
 
   return (
     <div className="relative w-full max-w-[600px]">
-      <div className="flex gap-2 bg-white/10 backdrop-blur-[10px] p-2 rounded-xl border border-white/20">
+      <div className="flex items-center gap-2 bg-white/10 backdrop-blur-[10px] p-2 rounded-xl border border-white/20">
+        <img
+          src={logoSrc}
+          alt=""
+          className="h-8 w-8 shrink-0 rounded-full object-cover"
+        />
         <input
           ref={inputRef}
           type="text"
@@ -102,33 +123,43 @@ function AutocompleteInput({ onSearch, onFocusChange }: AutocompleteInputProps) 
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           onFocus={() => {
+            setIsFocused(true)
             if (query) setShowDropdown(true)
             if (onFocusChange) onFocusChange(true)
           }}
           onBlur={() => {
+            setIsFocused(false)
             if (!showDropdown && onFocusChange) {
               onFocusChange(false)
             }
           }}
-          placeholder="Search web..."
-          className="flex-1 bg-transparent border-none px-4 py-3 text-base text-white outline-none placeholder-white/60"
+          placeholder="Aske me..."
+          className="flex-1 bg-transparent border-none p-0 text-base text-white outline-none placeholder-white/60"
         />
-        <button
-          type="button"
-          onClick={() => handleSearch()}
-          className="px-6 py-3 bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white border-none rounded-lg cursor-pointer text-base font-semibold transition-all hover:-translate-y-px hover:shadow-lg active:translate-y-0"
-          style={{
-            boxShadow: "0 4px 12px rgba(102, 126, 234, 0.4)",
-          }}
-        >
-          Search
-        </button>
+        {isFocused && (
+          <button
+            type="button"
+            onClick={() => handleSearch()}
+            className="shrink-0 p-2 text-white/80 hover:text-white rounded-lg transition-colors"
+            aria-label="Search"
+          >
+            <Search size={22} strokeWidth={2} />
+          </button>
+        )}
       </div>
 
       {showDropdown && (suggestions.length > 0 || history.length > 0) && (
         <div
           ref={dropdownRef}
-          className="absolute top-[calc(100%+0.5rem)] left-0 right-0 bg-black/90 backdrop-blur-[20px] rounded-lg border border-white/10 overflow-hidden z-[1000] max-h-[400px] overflow-y-auto"
+          className={`absolute top-[calc(100%+0.5rem)] left-0 right-0 bg-black/90 backdrop-blur-[20px] rounded-lg border border-white/10 overflow-hidden z-[1000] max-h-[400px] overflow-y-auto ${
+            isDropdownClosing
+              ? "animate-dropdown-exit"
+              : "animate-dropdown-enter"
+          }`}
+          style={{
+            animationDuration: "200ms",
+            animationFillMode: "forwards"
+          }}
         >
           {query && suggestions.length > 0 ? (
             <div className="p-2">

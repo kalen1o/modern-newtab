@@ -8,6 +8,7 @@ declare module "*.css" {
 // Module Federation remote declarations
 declare module "autocomplete/Autocomplete" {
     interface AutocompleteInputProps {
+        logoSrc?: string
         onSearch?: (query: string) => void
         onFocusChange?: (isFocused: boolean) => void
     }

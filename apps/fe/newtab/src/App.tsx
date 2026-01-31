@@ -62,12 +62,13 @@ function App() {
         <AnimatePresence>
           {!isInputFocused && (
             <motion.header
-              initial={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
+              initial={false}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
               transition={{ duration: 0.3 }}
-              className="flex justify-between items-center px-8 py-6 bg-black/30 backdrop-blur-[10px] border-b border-white/10 flex-shrink-0"
+              className="flex justify-between items-center px-8 py-6 flex-shrink-0"
             >
-              <h1 className="m-0 text-4xl font-bold text-white drop-shadow-md">NewTab</h1>
+              <h1 className="m-0 text-4xl font-bold text-white drop-shadow-md">Aske</h1>
               <div className="flex gap-2">
                 <button
                   type="button"
@@ -98,7 +99,7 @@ function App() {
               ...(isInputFocused ? { marginTop: "35vh" } : { marginTop: "32px" }),
             }}
             transition={{
-              duration: 0.2,
+              duration: 0.3,
               ease: "easeInOut",
             }}
           >
