@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react'
-import { NewsArticle, PageResponse } from '../types'
-import { newsApi } from '../api/news'
+import { useCallback, useEffect, useState } from "react"
+import { newsApi } from "../api/news"
+import type { NewsArticle, PageResponse } from "../types"
 
 function NewsGrid() {
   const [pageData, setPageData] = useState<PageResponse<NewsArticle> | null>(null)
@@ -14,14 +14,14 @@ function NewsGrid() {
       const data = await newsApi.getNews(currentPage, pageSize)
 
       if (!data) {
-        throw new Error('No data received from API')
+        throw new Error("No data received from API")
       }
 
       setPageData(data)
       setError(null)
     } catch (error) {
-      console.error('Failed to load news:', error)
-      setError('Failed to load news articles')
+      console.error("Failed to load news:", error)
+      setError("Failed to load news articles")
       setPageData(null)
     } finally {
       setLoading(false)
@@ -58,6 +58,7 @@ function NewsGrid() {
           <div className="text-center">
             <div className="text-white/60 text-base mb-4">{error}</div>
             <button
+              type="button"
               onClick={loadNews}
               className="mt-4 px-4 py-2 bg-indigo-500 text-white border-none rounded cursor-pointer text-sm transition-colors hover:bg-indigo-600"
             >

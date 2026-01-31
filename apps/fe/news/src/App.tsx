@@ -1,9 +1,11 @@
-import NewsGrid from './components/NewsGrid'
+import NewsGrid from "./components/NewsGrid"
 
 const App = () => {
-  return <div>
-    <NewsGrid />
+  return (
+    <div>
+      <NewsGrid />
     </div>
+  )
 }
 
 export default App

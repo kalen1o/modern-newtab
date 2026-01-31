@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react'
-import { api } from '@libs/shared'
+import { api } from "@libs/shared"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 interface AutocompleteInputProps {
   onSearch?: (query: string) => void
@@ -7,25 +7,26 @@ interface AutocompleteInputProps {
 }
 
 function AutocompleteInput({ onSearch, onFocusChange }: AutocompleteInputProps) {
-  const [query, setQuery] = useState('')
+  const [query, setQuery] = useState("")
   const [suggestions, setSuggestions] = useState<string[]>([])
   const [history, setHistory] = useState<string[]>([])
   const [showDropdown, setShowDropdown] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
-  const loadHistory = async () => {
-    try {
-      const data = await api.get<{ items: { query: string }[] }>('/api/history')
-      setHistory(data.items.map((item: { query: string }) => item.query))
-    } catch (error) {
-      console.error('Failed to load history:', error)
-    }
-  }
+    const loadHistory = useCallback(async () => {
+        try {
+        const data = await api.get<{ items: { query: string }[] }>("/api/history")
+        setHistory(data.items.map((item: { query: string }) => item.query))
+        } catch (error) {
+        console.error("Failed to load history:", error)
+        }
+    }, [])
+
 
   useEffect(() => {
     loadHistory()
-  }, [])
+  }, [loadHistory])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -42,16 +43,16 @@ function AutocompleteInput({ onSearch, onFocusChange }: AutocompleteInputProps) 
       }
     }
 
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [onFocusChange])
 
   const saveToHistory = async (searchQuery: string) => {
     try {
-      await api.post('/api/history', { query: searchQuery })
+      await api.post("/api/history", { query: searchQuery })
       loadHistory()
     } catch (error) {
-      console.error('Failed to save to history:', error)
+      console.error("Failed to save to history:", error)
     }
   }
 
@@ -61,9 +62,7 @@ function AutocompleteInput({ onSearch, onFocusChange }: AutocompleteInputProps) 
 
     // Show suggestions from history
     if (value.length > 0) {
-      const filtered = history.filter((h) =>
-        h.toLowerCase().includes(value.toLowerCase())
-      )
+      const filtered = history.filter((h) => h.toLowerCase().includes(value.toLowerCase()))
       setSuggestions(filtered.slice(0, 5))
       setShowDropdown(true)
     } else {
@@ -76,7 +75,7 @@ function AutocompleteInput({ onSearch, onFocusChange }: AutocompleteInputProps) 
     if (!finalQuery.trim()) return
 
     saveToHistory(finalQuery)
-    setQuery('')
+    setQuery("")
     setShowDropdown(false)
 
     if (onSearch) {
@@ -88,7 +87,7 @@ function AutocompleteInput({ onSearch, onFocusChange }: AutocompleteInputProps) 
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       handleSearch()
     }
   }
@@ -115,10 +114,11 @@ function AutocompleteInput({ onSearch, onFocusChange }: AutocompleteInputProps) 
           className="flex-1 bg-transparent border-none px-4 py-3 text-base text-white outline-none placeholder-white/60"
         />
         <button
+          type="button"
           onClick={() => handleSearch()}
           className="px-6 py-3 bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white border-none rounded-lg cursor-pointer text-base font-semibold transition-all hover:-translate-y-px hover:shadow-lg active:translate-y-0"
           style={{
-            boxShadow: '0 4px 12px rgba(102, 126, 234, 0.4)'
+            boxShadow: "0 4px 12px rgba(102, 126, 234, 0.4)",
           }}
         >
           Search
@@ -126,17 +126,21 @@ function AutocompleteInput({ onSearch, onFocusChange }: AutocompleteInputProps) 
       </div>
 
       {showDropdown && (suggestions.length > 0 || history.length > 0) && (
-        <div ref={dropdownRef} className="absolute top-[calc(100%+0.5rem)] left-0 right-0 bg-black/90 backdrop-blur-[20px] rounded-lg border border-white/10 overflow-hidden z-[1000] max-h-[400px] overflow-y-auto">
+        <div
+          ref={dropdownRef}
+          className="absolute top-[calc(100%+0.5rem)] left-0 right-0 bg-black/90 backdrop-blur-[20px] rounded-lg border border-white/10 overflow-hidden z-[1000] max-h-[400px] overflow-y-auto"
+        >
           {query && suggestions.length > 0 ? (
             <div className="p-2">
-              {suggestions.map((suggestion, index) => (
-                <div
-                  key={index}
-                  className="px-4 py-3 cursor-pointer rounded-lg text-white transition-colors hover:bg-white/10 active:bg-white/15"
+              {suggestions.map((suggestion) => (
+                <button
+                  key={suggestion}
+                  type="button"
+                  className="w-full text-left px-4 py-3 cursor-pointer rounded-lg text-white transition-colors hover:bg-white/10 active:bg-white/15 border-none bg-transparent"
                   onClick={() => handleSearch(suggestion)}
                 >
                   {suggestion}
-                </div>
+                </button>
               ))}
             </div>
           ) : (
@@ -144,14 +148,15 @@ function AutocompleteInput({ onSearch, onFocusChange }: AutocompleteInputProps) 
               <div className="px-3 py-2 text-xs text-white/40 uppercase font-semibold tracking-wider">
                 Recent
               </div>
-              {history.slice(0, 5).map((item, index) => (
-                <div
-                  key={index}
-                  className="px-4 py-3 cursor-pointer rounded-lg text-white transition-colors hover:bg-white/10 active:bg-white/15"
+              {history.slice(0, 5).map((item) => (
+                <button
+                  key={item}
+                  type="button"
+                  className="w-full text-left px-4 py-3 cursor-pointer rounded-lg text-white transition-colors hover:bg-white/10 active:bg-white/15 border-none bg-transparent"
                   onClick={() => handleSearch(item)}
                 >
                   {item}
-                </div>
+                </button>
               ))}
             </div>
           )}

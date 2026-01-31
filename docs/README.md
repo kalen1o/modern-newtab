@@ -210,6 +210,28 @@ Security best practices and common vulnerabilities.
 
 ---
 
+### 10. [Biome Setup](./10-biome-setup.md)
+
+Code formatting and linting with Biome toolchain.
+
+**Topics:**
+- Biome installation and configuration
+- Formatting and linting rules
+- Command-line usage
+- NX workspace integration
+- Editor setup (VSCode, JetBrains)
+- Migration from ESLint/Prettier
+- CI/CD integration
+- Troubleshooting
+
+**Key Commands:**
+- `pnpm biome:check` - Check formatting and linting
+- `pnpm biome:check:fix` - Fix all issues
+- `nx run <project>:biome:check` - Check specific project
+- `biome check --write` - Direct CLI usage
+
+---
+
 ## Quick Reference
 
 ### Application Ports
@@ -246,8 +268,11 @@ pnpm run build
 # Run all tests
 pnpm test
 
-# Lint all code
+# Lint and format all code with Biome
 pnpm lint
+
+# Fix linting and formatting issues
+pnpm lint:fix
 
 # View NX graph
 nx graph

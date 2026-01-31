@@ -13,6 +13,7 @@ node_modules/
 # Java / Maven
 target/
 .mvn/
+.mvnw/
 mvnw
 mvnw.cmd
 *.class
@@ -22,6 +23,7 @@ mvnw.cmd
 *.nar
 hs_err_pid*
 replay_pid*
+
 .DS_Store
 
 # IDEs
@@ -57,7 +59,7 @@ coverage/
 
 # Temporary files
 *.tmp
-*.temp
 *.cache/
 *.~*
 .LCK*
+*.bak

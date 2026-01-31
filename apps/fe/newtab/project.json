@@ -29,15 +29,16 @@
                 "passWithNoTests": true
             }
         },
-        "lint": {
-            "executor": "@nx/eslint:lint",
-            "outputs": [
-                "{options.outputFile}"
-            ],
+        "biome:check": {
+            "executor": "nx:run-commands",
             "options": {
-                "lintFilePatterns": [
-                    "apps/fe/newtab/**/*.{ts,tsx,js,jsx}"
-                ]
+                "command": "biome check apps/fe/newtab"
+            }
+        },
+        "biome:fix": {
+            "executor": "nx:run-commands",
+            "options": {
+                "command": "biome check --write apps/fe/newtab"
             }
         }
     },

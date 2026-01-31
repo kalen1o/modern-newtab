@@ -1,35 +1,32 @@
 {
-    "name": "newtab-service",
-    "$schema": "../../node_modules/nx/schemas/project-schema.json",
-    "sourceRoot": "apps/be/newtab-service/src",
-    "projectType": "application",
-    "targets": {
-        "serve": {
-            "executor": "@nx/js:node",
-            "options": {
-                "buildTarget": "newtab-service:build"
-            },
-            "configurations": {
-                "production": {
-                    "buildTarget": "newtab-service:build:production"
-                }
-            }
-        },
-        "build": {
-            "executor": "nx:run-commands",
-            "options": {
-                "command": "cd apps/be/newtab-service && mvn clean package -DskipTests"
-            }
-        },
-        "test": {
-            "executor": "nx:run-commands",
-            "options": {
-                "command": "cd apps/be/newtab-service && mvn test"
-            }
+  "name": "newtab-service",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/be/newtab-service/src",
+  "projectType": "application",
+  "targets": {
+    "serve": {
+      "executor": "@nx/js:node",
+      "options": {
+        "buildTarget": "newtab-service:build"
+      },
+      "configurations": {
+        "production": {
+          "buildTarget": "newtab-service:build:production"
         }
+      }
     },
-    "tags": [
-        "type:backend",
-        "scope:newtab"
-    ]
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cd apps/be/newtab-service && mvn clean package -DskipTests"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cd apps/be/newtab-service && mvn test"
+      }
+    }
+  },
+  "tags": ["type:backend", "scope:newtab"]
 }

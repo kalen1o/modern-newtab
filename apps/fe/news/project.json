@@ -36,15 +36,16 @@
                 "passWithNoTests": true
             }
         },
-        "lint": {
-            "executor": "@nx/eslint:lint",
-            "outputs": [
-                "{options.outputFile}"
-            ],
+        "biome:check": {
+            "executor": "nx:run-commands",
             "options": {
-                "lintFilePatterns": [
-                    "apps/fe/news/**/*.{ts,tsx,js,jsx}"
-                ]
+                "command": "biome check apps/fe/news"
+            }
+        },
+        "biome:fix": {
+            "executor": "nx:run-commands",
+            "options": {
+                "command": "biome check --write apps/fe/news"
             }
         }
     },
