@@ -1,5 +1,6 @@
 import { motion } from "framer-motion"
-import { Clock as ClockIcon, LogIn, LogOut, User, X } from "lucide-react"
+import { Clock as ClockIcon, Image as ImageIcon, LogIn, LogOut, User, X } from "lucide-react"
+import { BACKGROUNDS } from "../constants"
 import { useAuth } from "../hooks/useAuth"
 import type { ClockFormat } from "./Clock"
 
@@ -12,6 +13,8 @@ type SettingsProps = {
   onClockHiddenChange: (hidden: boolean) => void
   clockFormat: ClockFormat
   onClockFormatChange: (format: ClockFormat) => void
+  backgroundImage: string
+  onBackgroundImageChange: (filename: string) => void
 }
 
 export type { SettingsProps }
@@ -25,6 +28,8 @@ export function Settings({
   onClockHiddenChange,
   clockFormat,
   onClockFormatChange,
+  backgroundImage,
+  onBackgroundImageChange,
 }: SettingsProps) {
   const { isRegistered, logout } = useAuth()
 
@@ -102,6 +107,31 @@ export function Settings({
                   Sign In
                 </button>
               )}
+            </div>
+            <div className="p-4 bg-slate-100/50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700">
+              <div className="flex items-center gap-2 mb-3">
+                <ImageIcon className="size-4 text-slate-600 dark:text-slate-400" />
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Background
+                </span>
+              </div>
+              <div className="space-y-2">
+                <span className="text-sm text-slate-700 dark:text-slate-300">
+                  Browser background image
+                </span>
+                <select
+                  value={backgroundImage}
+                  onChange={(e) => onBackgroundImageChange(e.target.value)}
+                  className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  aria-label="Background image"
+                >
+                  {BACKGROUNDS.map((bg) => (
+                    <option key={bg.id} value={bg.filename}>
+                      {bg.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
             <div className="space-y-4">
               <label className="flex items-center justify-between gap-4 cursor-pointer">

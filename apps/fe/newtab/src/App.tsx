@@ -5,6 +5,7 @@ import type { ClockFormat } from "./components/Clock"
 import { Header } from "./components/Header"
 import { NewsSection } from "./components/NewsSection"
 import { Settings } from "./components/Settings"
+import { BACKGROUND_KEY, BACKGROUNDS } from "./constants"
 import { useAuth } from "./hooks/useAuth"
 
 const CLOCK_HIDDEN_KEY = "newtab-clock-hidden"
@@ -29,6 +30,16 @@ function readClockFormat(): ClockFormat {
   return "automatic"
 }
 
+function readBackground(): string {
+  try {
+    const v = localStorage.getItem(BACKGROUND_KEY)
+    const valid = BACKGROUNDS.some((b) => b.filename === v)
+    if (valid && v) return v
+  } catch {
+    // ignore
+  }
+  return BACKGROUNDS[0].filename
+}
 
 function App() {
   const [showNews, setShowNews] = useState(true)
@@ -36,6 +47,7 @@ function App() {
   const [bgOpacity, setBgOpacity] = useState(0)
   const [clockHidden, setClockHidden] = useState(readClockHidden)
   const [clockFormat, setClockFormat] = useState<ClockFormat>(readClockFormat)
+  const [backgroundImage, setBackgroundImage] = useState(readBackground)
   const [isInputFocused, setIsInputFocused] = useState(false)
   const { isAuthenticated, isRegistered, loading: authLoading, getGuestToken, token } = useAuth()
 
@@ -47,22 +59,28 @@ function App() {
     }
   }, [isAuthenticated, authLoading, getGuestToken])
 
-
   return (
     <div
       className="flex flex-col min-h-screen relative overflow-hidden"
-      style={
-        {
-          background: "linear-gradient(135deg, #e2e8f0 0%, #94a3b8 50%, #475569 100%)",
-          "--bg-opacity": bgOpacity,
-        } as React.CSSProperties
-      }
+      style={{ "--bg-opacity": bgOpacity } as React.CSSProperties}
     >
       <div
-        className="absolute inset-0 pointer-events-none transition-colors duration-100 ease-out"
+        className="fixed inset-0"
+        style={{
+          backgroundImage: `url('/backgrounds/${backgroundImage}')`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          backgroundAttachment: "fixed",
+          zIndex: 0,
+        }}
+        aria-hidden
+      />
+      <div
+        className="fixed inset-0 pointer-events-none transition-colors duration-100 ease-out"
         style={{
           backgroundColor: `rgba(0, 0, 0, ${bgOpacity})`,
-          zIndex: 0,
+          zIndex: 1,
         }}
       />
 
@@ -81,11 +99,7 @@ function App() {
         />
       </div>
 
-      <NewsSection
-        showNews={showNews}
-        token={token}
-        onIntersectionRatioChange={setBgOpacity}
-      />
+      <NewsSection showNews={showNews} token={token} onIntersectionRatioChange={setBgOpacity} />
 
       <AnimatePresence>
         {settingsOpen && (
@@ -109,6 +123,15 @@ function App() {
               setClockFormat(format)
               try {
                 localStorage.setItem(CLOCK_FORMAT_KEY, format)
+              } catch {
+                // ignore
+              }
+            }}
+            backgroundImage={backgroundImage}
+            onBackgroundImageChange={(filename: string) => {
+              setBackgroundImage(filename)
+              try {
+                localStorage.setItem(BACKGROUND_KEY, filename)
               } catch {
                 // ignore
               }
