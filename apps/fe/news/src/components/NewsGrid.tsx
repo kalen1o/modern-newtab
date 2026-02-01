@@ -1,7 +1,10 @@
 import { formatArticleDate } from "@libs/shared"
 import { useCallback, useEffect, useRef, useState } from "react"
-import { RefreshCw } from "lucide-react"
+import { RefreshCw, LayoutGrid, LayoutList } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
+
+const NEWS_VIEW_KEY = "news-view"
+type NewsViewMode = "list" | "featured"
 import { newsApi } from "../api/news"
 import type { NewsArticle, PageResponse } from "../types"
 
@@ -18,6 +21,18 @@ function NewsGrid({ token }: NewsGridProps) {
   const [isReloading, setIsReloading] = useState(false)
   const [isVisible, setIsVisible] = useState(true)
   const [isGridVisible50Percent, setIsGridVisible50Percent] = useState(false)
+  const [newsView, setNewsView] = useState<NewsViewMode>(() => {
+    const stored = localStorage.getItem(NEWS_VIEW_KEY)
+    return stored === "featured" || stored === "list" ? stored : "list"
+  })
+
+  const toggleNewsView = useCallback(() => {
+    setNewsView((prev) => {
+      const next = prev === "list" ? "featured" : "list"
+      localStorage.setItem(NEWS_VIEW_KEY, next)
+      return next
+    })
+  }, [])
   const newsContainerRef = useRef<HTMLDivElement>(null)
   const cardRefs = useRef<(HTMLAnchorElement | null)[]>([])
   const visibleCards50 = useRef<Set<Element>>(new Set())
@@ -163,119 +178,187 @@ function NewsGrid({ token }: NewsGridProps) {
     )
   }
 
+  const cardBase =
+    "flex flex-col bg-black/30 border border-white/10 rounded-lg text-inherit shadow-xl backdrop-blur-sm"
+  const motionProps = (index: number) => ({
+    ref: (el: HTMLAnchorElement | null) => setCardRef(index, el),
+    initial: { opacity: 0, y: 20, backdropFilter: "blur(4px)" },
+    animate: {
+      opacity: isVisible ? 1 : 0.5,
+      y: isVisible ? 0 : 20,
+      backdropFilter: isVisible ? "blur(24px)" : "blur(4px)",
+    },
+    transition: { duration: 0.3, ease: "easeInOut" as const },
+  })
+
+  const bigCard = (article: NewsArticle, index: number, listView = false) => {
+    const isFeatured = !listView
+    return (
+      <motion.a
+        key={article.id}
+        href={article.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        {...motionProps(index)}
+        className={`w-full flex ${isFeatured ? "flex-col md:flex-row md:overflow-hidden" : "flex-col"} ${listView ? "max-w-[50%]" : ""} ${cardBase}`}
+      >
+        <div
+          className={`p-4 flex flex-col h-full flex-1 min-w-0 ${isFeatured ? "md:order-1" : ""}`}
+        >
+          <div className="flex items-center gap-2 mb-3">
+            {article.category && (
+              <span className="px-2 py-1 bg-indigo-500/20 text-indigo-400 text-xs font-semibold uppercase tracking-wider rounded">
+                {article.category}
+              </span>
+            )}
+            {article.source && (
+              <span className="text-xs text-white/50 uppercase tracking-wider">
+                {article.source}
+              </span>
+            )}
+          </div>
+          <h3 className="text-2xl font-bold mb-3 leading-tight line-clamp-2 text-white">
+            {article.title}
+          </h3>
+          {article.description && (
+            <p className="text-base text-white/70 mb-4 leading-relaxed line-clamp-3 flex-1">
+              {article.description}
+            </p>
+          )}
+          {article.publishedAt && (
+            <div className="text-sm text-white/50 mt-auto pt-3 border-t border-white/5">
+              {formatArticleDate(article.publishedAt)}
+            </div>
+          )}
+        </div>
+        {article.imageUrl && (
+          <div
+            className={`flex-shrink-0 ${isFeatured ? "w-full md:w-2/5 md:max-w-[420px] md:order-2 md:rounded-r-lg md:overflow-hidden" : ""}`}
+          >
+            <img
+              src={article.imageUrl}
+              alt={article.title}
+              className={`object-cover ${isFeatured ? "w-full h-64 md:h-full md:min-h-[280px] md:rounded-r-lg" : "w-full h-80 rounded-lg mb-4"}`}
+            />
+          </div>
+        )}
+      </motion.a>
+    )
+  }
+
+  const smallCard = (article: NewsArticle, index: number, listView = false) => (
+    <motion.a
+      key={article.id}
+      href={article.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      {...motionProps(index)}
+      className={`w-full flex flex-col md:flex-row ${listView ? "max-w-[50%]" : ""} ${cardBase}`}
+    >
+      <div className="p-4 flex-1 flex flex-col justify-center min-w-0 order-1">
+        <div className="flex items-center gap-2 mb-2">
+          {article.category && (
+            <span className="px-2 py-1 bg-indigo-500/20 text-indigo-400 text-xs font-semibold uppercase tracking-wider rounded">
+              {article.category}
+            </span>
+          )}
+          {article.source && (
+            <span className="text-xs text-white/50 uppercase tracking-wider">{article.source}</span>
+          )}
+        </div>
+        <h3 className="text-lg font-semibold mb-2 leading-tight line-clamp-2 text-white">
+          {article.title}
+        </h3>
+        {article.description && (
+          <p className="text-sm text-white/70 mb-2 leading-relaxed line-clamp-2">
+            {article.description}
+          </p>
+        )}
+        {article.publishedAt && (
+          <div className="text-xs text-white/50 mt-auto pt-2 border-t border-white/5">
+            {formatArticleDate(article.publishedAt)}
+          </div>
+        )}
+      </div>
+      {article.imageUrl && (
+        <div className="flex-shrink-0 p-4 border-b md:border-b-0 md:border-l border-white/5 flex items-stretch justify-center order-2">
+          <img
+            src={article.imageUrl}
+            alt={article.title}
+            className="w-full md:w-40 h-32 md:h-full md:min-h-[140px] object-cover rounded-lg md:rounded-l-none md:rounded-r-lg"
+          />
+        </div>
+      )}
+    </motion.a>
+  )
+
+  type FeaturedRow =
+    | { type: "big-small"; articles: NewsArticle[] }
+    | { type: "three-small"; articles: NewsArticle[] }
+  const featuredRows = (() => {
+    const rows: FeaturedRow[] = []
+    let i = 0
+    let rowIndex = 0
+    while (i < articles.length) {
+      if (rowIndex % 2 === 0) {
+        const chunk = articles.slice(i, i + 2)
+        if (chunk.length > 0) rows.push({ type: "big-small", articles: chunk })
+        i += 2
+      } else {
+        const chunk = articles.slice(i, i + 3)
+        if (chunk.length > 0) rows.push({ type: "three-small", articles: chunk })
+        i += 3
+      }
+      rowIndex++
+    }
+    return rows
+  })()
+
   return (
     <div className="w-full max-w-[1400px] mx-auto px-4 relative">
       <div ref={newsContainerRef} className="flex flex-col gap-4 items-center">
-        <AnimatePresence mode="popLayout">
-          {articles.map((article, index) => {
-            const isBigCard = index % 5 === 0
-            return isBigCard ? (
-              <motion.a
-                key={article.id}
-                ref={(el) => setCardRef(index, el)}
-                href={article.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                initial={{ opacity: 0, y: 20, backdropFilter: "blur(4px)" }}
-                animate={{
-                  opacity: isVisible ? 1 : 0.5,
-                  y: isVisible ? 0 : 20,
-                  backdropFilter: isVisible ? "blur(24px)" : "blur(4px)",
-                }}
-                transition={{ duration: 0.3, ease: "easeInOut" }}
-                className={`w-full max-w-[50%] flex flex-col bg-black/30 border border-white/10 rounded-lg text-inherit shadow-xl backdrop-blur-sm`}
-              >
-                <div className="p-4 flex flex-col h-full">
-                  {article.imageUrl && (
-                    <img
-                      src={article.imageUrl}
-                      alt={article.title}
-                      className="w-full h-80 object-cover rounded-lg mb-4"
-                    />
-                  )}
-                  <div className="flex items-center gap-2 mb-3">
-                    {article.category && (
-                      <span className="px-2 py-1 bg-indigo-500/20 text-indigo-400 text-xs font-semibold uppercase tracking-wider rounded">
-                        {article.category}
-                      </span>
-                    )}
-                    {article.source && (
-                      <span className="text-xs text-white/50 uppercase tracking-wider">
-                        {article.source}
-                      </span>
-                    )}
-                  </div>
-                  <h3 className="text-2xl font-bold mb-3 leading-tight line-clamp-2 text-white">
-                    {article.title}
-                  </h3>
-                  {article.description && (
-                    <p className="text-base text-white/70 mb-4 leading-relaxed line-clamp-3 flex-1">
-                      {article.description}
-                    </p>
-                  )}
-                  {article.publishedAt && (
-                    <div className="text-sm text-white/50 mt-auto pt-3 border-t border-white/5">
-                      {formatArticleDate(article.publishedAt)}
-                    </div>
-                  )}
-                </div>
-              </motion.a>
-            ) : (
-              <motion.a
-                key={article.id}
-                ref={(el) => setCardRef(index, el)}
-                href={article.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                initial={{ opacity: 0, y: 20, backdropFilter: "blur(4px)" }}
-                animate={{
-                  opacity: isVisible ? 1 : 0.5,
-                  y: isVisible ? 0 : 20,
-                  backdropFilter: isVisible ? "blur(24px)" : "blur(4px)",
-                }}
-                transition={{ duration: 0.3, ease: "easeInOut" }}
-                className={`w-full max-w-[50%] flex flex-col md:flex-row bg-black/30 border border-white/10 rounded-lg text-inherit shadow-xl backdrop-blur-sm`}
-              >
-                <div className="p-4 flex-1 flex flex-col justify-center">
-                  <div className="flex items-center gap-2 mb-2">
-                    {article.category && (
-                      <span className="px-2 py-1 bg-indigo-500/20 text-indigo-400 text-xs font-semibold uppercase tracking-wider rounded">
-                        {article.category}
-                      </span>
-                    )}
-                    {article.source && (
-                      <span className="text-xs text-white/50 uppercase tracking-wider">
-                        {article.source}
-                      </span>
-                    )}
-                  </div>
-                  <h3 className="text-lg font-semibold mb-2 leading-tight line-clamp-2 text-white">
-                    {article.title}
-                  </h3>
-                  {article.description && (
-                    <p className="text-sm text-white/70 mb-2 leading-relaxed line-clamp-2">
-                      {article.description}
-                    </p>
-                  )}
-                  {article.publishedAt && (
-                    <div className="text-xs text-white/50 mt-auto pt-2 border-t border-white/5">
-                      {formatArticleDate(article.publishedAt)}
-                    </div>
-                  )}
-                </div>
-                {article.imageUrl && (
-                  <div className="p-4 border-b md:border-b-0 md:border-l border-white/5 flex items-center justify-center">
-                    <img
-                      src={article.imageUrl}
-                      alt={article.title}
-                      className="w-32 md:w-48 h-full object-cover rounded-lg"
-                    />
-                  </div>
-                )}
-              </motion.a>
-            )
-          })}
-        </AnimatePresence>
+        {newsView === "list" ? (
+          <AnimatePresence mode="popLayout">
+            {articles.map((article, index) => {
+              const isBigCard = index % 5 === 0
+              return isBigCard ? bigCard(article, index, true) : smallCard(article, index, true)
+            })}
+          </AnimatePresence>
+        ) : (
+          <AnimatePresence mode="popLayout">
+            {featuredRows.map((row, rowIndex) => {
+              const baseIndex = featuredRows
+                .slice(0, rowIndex)
+                .reduce((acc, r) => acc + r.articles.length, 0)
+              if (row.type === "big-small") {
+                const [first, second] = row.articles
+                return (
+                  <motion.div
+                    key={row.articles.map((a) => a.id).join("-")}
+                    className="grid gap-4 w-full max-w-[1400px] grid-cols-1 md:grid-cols-[2fr_1fr]"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {first && bigCard(first, baseIndex + 0, false)}
+                    {second && smallCard(second, baseIndex + 1, false)}
+                  </motion.div>
+                )
+              }
+              return (
+                <motion.div
+                  key={row.articles.map((a) => a.id).join("-")}
+                  className="grid gap-4 w-full max-w-[1400px] grid-cols-1 md:grid-cols-3"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {row.articles.map((article, j) => smallCard(article, baseIndex + j, false))}
+                </motion.div>
+              )
+            })}
+          </AnimatePresence>
+        )}
       </div>
 
       {pageData && pageData.totalPages > 1 && (
@@ -316,21 +399,46 @@ function NewsGrid({ token }: NewsGridProps) {
 
       <AnimatePresence mode="wait">
         {isGridVisible50Percent && (
-          <motion.button
-            key="reload"
-            type="button"
-            onClick={handleReload}
-            disabled={isReloading || loading}
+          <motion.div
+            key="news-actions"
+            className="fixed bottom-6 right-6 flex gap-2 z-50"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 16 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="fixed bottom-6 right-6 p-2 bg-white/10 backdrop-blur-md text-white border border-white/20 rounded-lg cursor-pointer hover:bg-white/20 disabled:bg-white/5 disabled:border-white/10 disabled:cursor-not-allowed disabled:opacity-50 shadow-xl z-50"
-            aria-label="Reload news"
-            title="Reload news"
           >
-            <RefreshCw className={`size-5 ${isReloading ? "animate-spin" : ""}`} />
-          </motion.button>
+            <button
+              type="button"
+              onClick={toggleNewsView}
+              className="p-2 bg-white/10 backdrop-blur-md text-white border border-white/20 rounded-lg cursor-pointer hover:bg-white/20 shadow-xl"
+              aria-label={
+                newsView === "list"
+                  ? "Featured view (1 big + 1 small or 3 small per row)"
+                  : "List view"
+              }
+              title={
+                newsView === "list"
+                  ? "Featured view (1 big + 1 small or 3 small per row)"
+                  : "List view"
+              }
+            >
+              {newsView === "list" ? (
+                <LayoutGrid className="size-5" aria-hidden />
+              ) : (
+                <LayoutList className="size-5" aria-hidden />
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={handleReload}
+              disabled={isReloading || loading}
+              className="p-2 bg-white/10 backdrop-blur-md text-white border border-white/20 rounded-lg cursor-pointer hover:bg-white/20 disabled:bg-white/5 disabled:border-white/10 disabled:cursor-not-allowed disabled:opacity-50 shadow-xl"
+              aria-label="Reload news"
+              title="Reload news"
+            >
+              <RefreshCw className={`size-5 ${isReloading ? "animate-spin" : ""}`} />
+            </button>
+          </motion.div>
         )}
       </AnimatePresence>
     </div>
