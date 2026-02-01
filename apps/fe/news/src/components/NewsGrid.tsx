@@ -3,7 +3,11 @@ import { RefreshCw } from "lucide-react"
 import { newsApi } from "../api/news"
 import type { NewsArticle, PageResponse } from "../types"
 
-function NewsGrid() {
+type NewsGridProps = {
+  token?: string
+}
+
+function NewsGrid({ token }: NewsGridProps) {
   const [pageData, setPageData] = useState<PageResponse<NewsArticle> | null>(null)
   const [currentPage, setCurrentPage] = useState(0)
   const [pageSize] = useState(20)
@@ -15,7 +19,7 @@ function NewsGrid() {
 
   const loadNews = useCallback(async () => {
     try {
-      const data = await newsApi.getNews(currentPage, pageSize)
+      const data = await newsApi.getNews(currentPage, pageSize, token)
 
       if (!data) {
         throw new Error("No data received from API")
@@ -31,7 +35,7 @@ function NewsGrid() {
       setLoading(false)
       setIsReloading(false)
     }
-  }, [currentPage, pageSize])
+  }, [currentPage, pageSize, token])
 
   const handleReload = useCallback(() => {
     setIsReloading(true)
@@ -280,5 +284,7 @@ function NewsGrid() {
     </div>
   )
 }
+
+export type { NewsGridProps }
 
 export default NewsGrid

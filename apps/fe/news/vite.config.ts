@@ -11,7 +11,7 @@ export default defineConfig({
       exposes: {
         "./News": "./src/components/NewsGrid.tsx",
       },
-      shared: ["react", "react-dom"],
+      shared: ["react", "react-dom", "@libs/shared"],
     }),
   ],
   build: {

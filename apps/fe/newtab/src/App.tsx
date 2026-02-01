@@ -15,7 +15,7 @@ function App() {
   const [bgOpacity, setBgOpacity] = useState(0)
   const [isInputFocused, setIsInputFocused] = useState(false)
   const newsSectionRef = useRef<HTMLDivElement>(null)
-  const { isAuthenticated, isRegistered, loading: authLoading, getGuestToken } = useAuth()
+  const { isAuthenticated, isRegistered, loading: authLoading, getGuestToken, token } = useAuth()
 
   useEffect(() => {
     if (!isAuthenticated && !authLoading) {
@@ -172,7 +172,7 @@ function App() {
                   <div className="text-white/70 text-lg py-8 text-center">Loading news...</div>
                 }
               >
-                <NewsGrid />
+                <NewsGrid {...({ token: token ?? undefined } as any)} />
               </Suspense>
             </ErrorBoundary>
           </motion.section>

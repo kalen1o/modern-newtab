@@ -6,6 +6,7 @@ export function useAuth() {
     const [isRegistered, setIsRegistered] = useState<boolean>(false)
     const [loading, setLoading] = useState<boolean>(true)
     const [error, setError] = useState<string | null>(null)
+    const [token, setToken] = useState<string | null>(null)
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -15,11 +16,13 @@ export function useAuth() {
                     await authService.validateToken()
                     setIsAuthenticated(true)
                     setIsRegistered(authService.isRegisteredUser())
+                    setToken(authService.getToken())
                 }
             } catch (_err) {
                 authService.logout()
                 setIsAuthenticated(false)
                 setIsRegistered(false)
+                setToken(null)
             } finally {
                 setLoading(false)
             }
@@ -35,6 +38,7 @@ export function useAuth() {
             const response = await authService.getGuestToken()
             setIsAuthenticated(true)
             setIsRegistered(false)
+            setToken(authService.getToken())
             return response
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : "Failed to get guest token"
@@ -52,6 +56,7 @@ export function useAuth() {
             const response = await authService.login({ email, password })
             setIsAuthenticated(true)
             setIsRegistered(true)
+            setToken(authService.getToken())
             return response
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : "Login failed"
@@ -66,6 +71,7 @@ export function useAuth() {
         authService.logout()
         setIsAuthenticated(false)
         setIsRegistered(false)
+        setToken(null)
         setError(null)
     }
 
@@ -77,5 +83,6 @@ export function useAuth() {
         getGuestToken,
         login,
         logout,
+        token,
     }
 }

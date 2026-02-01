@@ -1,5 +1,6 @@
 export interface ApiRequestOptions extends RequestInit {
   headers?: Record<string, string>
+  token?: string
 }
 
 export interface ApiResponse<T> {
@@ -19,7 +20,7 @@ export interface ApiClient {
  */
 export function createApiClient(apiBaseUrl: string): ApiClient {
   async function apiRequest<T>(url: string, options: ApiRequestOptions = {}): Promise<T> {
-    const token = localStorage.getItem("authToken")
+    const token = options.token ?? localStorage.getItem("authToken")
 
     const headers = new Headers({
       "Content-Type": "application/json",
@@ -29,8 +30,6 @@ export function createApiClient(apiBaseUrl: string): ApiClient {
     if (token) {
       headers.append("Authorization", `Bearer ${token}`)
     }
-
-    console.log("API_BASE", apiBaseUrl)
 
     const response = await fetch(`${apiBaseUrl}${url}`, {
       ...options,
