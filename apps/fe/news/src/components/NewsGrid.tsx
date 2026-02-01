@@ -264,11 +264,13 @@ function NewsGrid({ token }: NewsGridProps) {
                   )}
                 </div>
                 {article.imageUrl && (
-                  <img
-                    src={article.imageUrl}
-                    alt={article.title}
-                    className="w-full md:w-48 h-48 object-cover rounded-lg p-4 border-b md:border-b-0 md:border-l border-white/5"
-                  />
+                  <div className="p-4 border-b md:border-b-0 md:border-l border-white/5 flex items-center justify-center">
+                    <img
+                      src={article.imageUrl}
+                      alt={article.title}
+                      className="w-32 md:w-48 h-full object-cover rounded-lg"
+                    />
+                  </div>
                 )}
               </motion.a>
             )
