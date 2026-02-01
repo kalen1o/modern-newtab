@@ -438,6 +438,106 @@ When adding features or fixing bugs:
 - Consistent formatting and style
 - Up-to-date with codebase
 
+## Frontend Development Standards
+
+### Animation Policy
+
+**Mandatory Use of Framer Motion**
+
+All animations in React applications must use **framer-motion** library. CSS transitions, transforms, and inline animation styles are prohibited.
+
+**Rationale:**
+- Declarative, performant animations
+- Built-in gesture support
+- Automatic layout animations
+- Better accessibility
+- Consistent animation patterns across codebase
+
+**Examples:**
+
+```tsx
+// ✅ GOOD - Using framer-motion
+import { motion, AnimatePresence } from "framer-motion"
+
+<motion.div
+  initial={{ opacity: 0, y: 20 }}
+  animate={{ opacity: 1, y: 0 }}
+  exit={{ opacity: 0, y: -20 }}
+  transition={{ duration: 0.3 }}
+>
+  Content
+</motion.div>
+
+// ❌ BAD - Using CSS transitions
+<div
+  style={{
+    opacity: isVisible ? 1 : 0,
+    transform: `translateY(${isVisible ? 0 : 20}px)`,
+    transition: "opacity 0.3s, transform 0.3s",
+  }}
+>
+  Content
+</div>
+```
+
+**Installation:**
+```bash
+# Add to specific app
+pnpm add framer-motion -D -w
+# Or add to workspace package.json
+"framer-motion": "^12.7.3"
+```
+
+**Common Patterns:**
+
+1. **Show/Hide with AnimatePresence:**
+```tsx
+<AnimatePresence mode="wait">
+  {isVisible && (
+    <motion.div
+      key="modal"
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{ duration: 0.2 }}
+    >
+      Modal Content
+    </motion.div>
+  )}
+</AnimatePresence>
+```
+
+2. **List Animations:**
+```tsx
+<AnimatePresence mode="popLayout">
+  {items.map((item) => (
+    <motion.div
+      key={item.id}
+      layout
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.3 }}
+    >
+      {item.content}
+    </motion.div>
+  ))}
+</AnimatePresence>
+```
+
+3. **Conditional Animations:**
+```tsx
+<motion.div
+  animate={{
+    opacity: isVisible ? 1 : 0.5,
+    y: isVisible ? 0 : 20,
+  }}
+  transition={{ duration: 0.3, ease: "easeInOut" }}
+>
+  Content
+</motion.div>
+```
+
 ---
 
 **Last Updated**: January 31, 2026
