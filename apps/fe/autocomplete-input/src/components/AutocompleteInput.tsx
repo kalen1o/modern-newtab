@@ -118,6 +118,15 @@ function AutocompleteInput({
     if (e.key === "Enter") {
       handleSearch()
     }
+    if (e.key === "Escape") {
+      inputRef.current?.blur()
+      setIsDropdownClosing(true)
+      if (onFocusChange) onFocusChange(false)
+      setTimeout(() => {
+        setShowDropdown(false)
+        setIsDropdownClosing(false)
+      }, 200)
+    }
   }
 
   return (
