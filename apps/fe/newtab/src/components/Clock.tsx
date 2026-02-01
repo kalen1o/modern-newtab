@@ -36,7 +36,7 @@ export function Clock({ hidden, format, className = "" }: ClockProps) {
   return (
     <time
       dateTime={now.toISOString()}
-      className={`text-4xl font-bold tabular-nums text-white ${className}`}
+      className={`text-5xl font-bold tabular-nums text-white ${className}`}
       style={{
         textShadow: "0 1px 2px rgba(0,0,0,0.5), 0 0 1px rgba(0,0,0,0.3)",
         visibility: hidden ? "hidden" : "visible",
