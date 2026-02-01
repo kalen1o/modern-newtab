@@ -8,40 +8,13 @@ const NewsGrid = lazy(() => import("news/News"))
 interface NewsSectionProps {
   showNews: boolean
   token: string | null | undefined
-  onIntersectionRatioChange: (ratio: number) => void
 }
 
-export function NewsSection({ showNews, token, onIntersectionRatioChange }: NewsSectionProps) {
-  const handleRef = (node: HTMLDivElement | null) => {
-    if (!node) return
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const intersectionRatio = entry.intersectionRatio
-            onIntersectionRatioChange(Math.min(intersectionRatio * 2, 0.8))
-          }
-        })
-      },
-      {
-        threshold: Array.from({ length: 100 }, (_, i) => i / 100),
-        rootMargin: "-100px",
-      }
-    )
-
-    observer.observe(node)
-
-    return () => {
-      observer.unobserve(node)
-    }
-  }
-
+export function NewsSection({ showNews, token }: NewsSectionProps) {
   return (
     <AnimatePresence>
       {showNews && (
         <motion.section
-          ref={handleRef}
           initial={{ opacity: 1 }}
           exit={{ opacity: 0, y: 50 }}
           transition={{ duration: 0.3 }}

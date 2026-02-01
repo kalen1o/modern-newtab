@@ -1,45 +1,21 @@
 import { AnimatePresence } from "framer-motion"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { BannerSection } from "./components/BannerSection"
 import type { ClockFormat } from "./components/Clock"
 import { Header } from "./components/Header"
 import { NewsSection } from "./components/NewsSection"
 import { Settings } from "./components/Settings"
-import { BACKGROUND_KEY, BACKGROUNDS } from "./constants"
+import { BACKGROUND_KEY } from "./constants"
 import { useAuth } from "./hooks/useAuth"
+import {
+  CLOCK_FORMAT_KEY,
+  CLOCK_HIDDEN_KEY,
+  readBackground,
+  readClockFormat,
+  readClockHidden,
+} from "./utils/storage"
 
-const CLOCK_HIDDEN_KEY = "newtab-clock-hidden"
-const CLOCK_FORMAT_KEY = "newtab-clock-format"
-
-function readClockHidden(): boolean {
-  try {
-    const v = localStorage.getItem(CLOCK_HIDDEN_KEY)
-    return v === "true"
-  } catch {
-    return false
-  }
-}
-
-function readClockFormat(): ClockFormat {
-  try {
-    const v = localStorage.getItem(CLOCK_FORMAT_KEY)
-    if (v === "12h" || v === "24h" || v === "automatic") return v
-  } catch {
-    // ignore
-  }
-  return "automatic"
-}
-
-function readBackground(): string {
-  try {
-    const v = localStorage.getItem(BACKGROUND_KEY)
-    const valid = BACKGROUNDS.some((b) => b.filename === v)
-    if (valid && v) return v
-  } catch {
-    // ignore
-  }
-  return BACKGROUNDS[0].filename
-}
+const BG_OVERLAY_MAX_OPACITY = 0.5
 
 function App() {
   const [showNews, setShowNews] = useState(true)
@@ -49,7 +25,26 @@ function App() {
   const [clockFormat, setClockFormat] = useState<ClockFormat>(readClockFormat)
   const [backgroundImage, setBackgroundImage] = useState(readBackground)
   const [isInputFocused, setIsInputFocused] = useState(false)
+  const initialScreenRef = useRef<HTMLDivElement | null>(null)
   const { isAuthenticated, isRegistered, loading: authLoading, getGuestToken, token } = useAuth()
+
+  useEffect(() => {
+    const el = initialScreenRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          const ratio = entry.intersectionRatio
+          setBgOpacity((1 - ratio) * BG_OVERLAY_MAX_OPACITY)
+        }
+      },
+      {
+        threshold: Array.from({ length: 101 }, (_, i) => i / 100),
+      }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
 
   useEffect(() => {
     if (!isAuthenticated && !authLoading) {
@@ -80,11 +75,11 @@ function App() {
         className="fixed inset-0 pointer-events-none transition-colors duration-100 ease-out"
         style={{
           backgroundColor: `rgba(0, 0, 0, ${bgOpacity})`,
-          zIndex: 1,
+          zIndex: 0,
         }}
       />
 
-      <div className="flex flex-col h-screen relative z-[5]">
+      <div ref={initialScreenRef} className="flex flex-col h-screen relative z-[5]">
         <Header
           isInputFocused={isInputFocused}
           clockHidden={clockHidden}
@@ -99,7 +94,7 @@ function App() {
         />
       </div>
 
-      <NewsSection showNews={showNews} token={token} onIntersectionRatioChange={setBgOpacity} />
+      <NewsSection showNews={showNews} token={token} />
 
       <AnimatePresence>
         {settingsOpen && (
