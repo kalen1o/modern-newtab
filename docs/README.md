@@ -440,6 +440,121 @@ When adding features or fixing bugs:
 
 ## Frontend Development Standards
 
+### TypeScript Standards
+
+**No `any` Type Usage**
+
+The use of `any` type is strictly prohibited. All types must be properly defined.
+
+**Rationale:**
+- Maintains type safety
+- Improves IDE autocomplete
+- Catches errors at compile time
+- Better documentation and refactoring support
+
+**Exceptions:**
+- When working with module federation remote components that lack type definitions, declare types in `vite-env.d.ts` using module augmentation
+
+**Examples:**
+
+```tsx
+// ✅ GOOD - Define types in vite-env.d.ts
+// vite-env.d.ts
+declare module "news/News" {
+    interface NewsGridProps {
+        token?: string
+    }
+    const NewsGrid: React.ComponentType<NewsGridProps>
+    export default NewsGrid
+    export type { NewsGridProps }
+}
+
+// Then use directly in components
+import { lazy, Suspense } from "react"
+const NewsGrid = lazy(() => import("news/News"))
+
+<NewsGrid token={token ?? undefined} />
+
+// ❌ BAD - Using 'any' with biome ignore
+const RemoteComponent = lazy(() => import("remote/Component"))
+<RemoteComponent {...(props as any)} /> // biome-ignore lint/suspicious/noExplicitAny
+```
+
+**Best Practices for Module Federation:**
+
+**Use vite-env.d.ts for Remote Module Types**
+
+```tsx
+// ✅ GOOD - Define types in vite-env.d.ts
+// apps/fe/newtab/src/vite-env.d.ts
+declare module "news/News" {
+    interface NewsGridProps {
+        token?: string
+    }
+    const NewsGrid: React.ComponentType<NewsGridProps>
+    export default NewsGrid
+    export type { NewsGridProps }
+}
+
+// Then use directly in components
+import { lazy, Suspense } from "react"
+const NewsGrid = lazy(() => import("news/News"))
+
+<NewsGrid token={token ?? undefined} />
+```
+
+**Why this approach is recommended:**
+1. Single source of truth - all remote module types in one file
+2. TypeScript recognizes types across the entire app
+3. No runtime type assertions needed
+4. Clean and maintainable
+5. Follows standard Vite TypeScript augmentation pattern
+6. Enables IDE autocomplete for remote components
+7. Catches prop mismatches at compile time
+
+**Implementation Steps:**
+1. Identify remote module and its props interface
+2. Add module declaration to `vite-env.d.ts` in the host app
+3. Export both the component and its props type from the module declaration
+4. Import and use normally - no special handling needed
+
+
+### Biome Standards
+
+**No Biome Ignore Comments**
+
+The use of `biome-ignore` comments is prohibited. All linting issues must be resolved through proper code implementation.
+
+**Rationale:**
+- Maintains consistent code quality
+- Forces proper solutions instead of workarounds
+- Prevents accumulation of technical debt
+- Ensures all code follows standards
+
+**Exception Process:**
+1. If Biome reports an issue, first understand why
+2. Fix the underlying problem, not just suppress the warning
+3. If truly necessary to ignore, add a comment explaining the technical limitation
+4. Such exceptions should be rare and require team review
+
+**Examples:**
+
+```tsx
+// ✅ GOOD - Properly typed interface
+interface ComponentProps {
+  token: string
+}
+
+function MyComponent({ token }: ComponentProps) {
+  return <div>{token}</div>
+}
+
+// ❌ BAD - Using biome ignore to avoid typing
+function MyComponent(props: any) {
+  return <div>{props.token}</div>
+} // biome-ignore lint/suspicious/noExplicitAny
+```
+
 ### Animation Policy
 
 **Mandatory Use of Framer Motion**

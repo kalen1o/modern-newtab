@@ -1,0 +1,62 @@
+import { lazy, Suspense } from "react"
+import { motion } from "framer-motion"
+import { ErrorBoundary } from "./ErrorBoundary"
+
+// Lazy load microfrontend with proper error handling
+const AutocompleteInput = lazy(() => import("autocomplete/Autocomplete"))
+
+interface BannerSectionProps {
+  isInputFocused: boolean
+  onFocusChange: (focused: boolean) => void
+  isRegisteredUser: boolean
+}
+
+export function BannerSection({ isInputFocused, onFocusChange, isRegisteredUser }: BannerSectionProps) {
+  return (
+    <section
+      className={`flex-1 flex flex-col px-8 transition-all items-center ${isInputFocused ? "absolute inset-0 z-[10] p-0 justify-start" : ""}`}
+    >
+      <motion.div
+        className="w-full"
+        initial={{ height: "32px" }}
+        animate={isInputFocused ? { height: "40vh" } : { height: "32px" }}
+        transition={{
+          duration: 0.3,
+          ease: "easeInOut",
+        }}
+      />
+      <motion.div
+        className="w-full max-w-[600px]"
+        initial={{
+          width: "600px",
+          maxWidth: "600px",
+          scale: 1,
+        }}
+        animate={
+          isInputFocused
+            ? {
+                width: "90vw",
+                scale: 1.1,
+              }
+            : {
+                width: "600px",
+                scale: 1,
+              }
+        }
+        transition={{
+          duration: 0.3,
+          ease: "easeInOut",
+        }}
+      >
+        <ErrorBoundary appName="Search Component">
+          <Suspense fallback={null}>
+            <AutocompleteInput
+              onFocusChange={onFocusChange}
+              isRegisteredUser={isRegisteredUser}
+            />
+          </Suspense>
+        </ErrorBoundary>
+      </motion.div>
+    </section>
+  )
+}

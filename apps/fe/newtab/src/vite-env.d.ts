@@ -15,9 +15,14 @@ declare module "autocomplete/Autocomplete" {
     }
     const AutocompleteInput: React.ComponentType<AutocompleteInputProps>
     export default AutocompleteInput
+    export type { AutocompleteInputProps }
 }
 
 declare module "news/News" {
-    const NewsGrid: React.ComponentType<React.PropsWithChildren>
+    interface NewsGridProps {
+        token?: string
+    }
+    const NewsGrid: React.ComponentType<NewsGridProps>
     export default NewsGrid
+    export type { NewsGridProps }
 }

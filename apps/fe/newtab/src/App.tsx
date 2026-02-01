@@ -1,9 +1,9 @@
-import { AnimatePresence, motion } from "framer-motion"
-import { Settings as SettingsIcon } from "lucide-react"
-import { lazy, Suspense, useEffect, useRef, useState } from "react"
-import { Clock } from "./components/Clock"
+import { AnimatePresence } from "framer-motion"
+import { useEffect, useState } from "react"
+import { BannerSection } from "./components/BannerSection"
 import type { ClockFormat } from "./components/Clock"
-import { ErrorBoundary } from "./components/ErrorBoundary"
+import { Header } from "./components/Header"
+import { NewsSection } from "./components/NewsSection"
 import { Settings } from "./components/Settings"
 import { useAuth } from "./hooks/useAuth"
 
@@ -29,9 +29,6 @@ function readClockFormat(): ClockFormat {
   return "automatic"
 }
 
-// Lazy load microfrontends with proper error handling
-const AutocompleteInput = lazy(() => import("autocomplete/Autocomplete"))
-const NewsGrid = lazy(() => import("news/News"))
 
 function App() {
   const [showNews, setShowNews] = useState(true)
@@ -40,7 +37,6 @@ function App() {
   const [clockHidden, setClockHidden] = useState(readClockHidden)
   const [clockFormat, setClockFormat] = useState<ClockFormat>(readClockFormat)
   const [isInputFocused, setIsInputFocused] = useState(false)
-  const newsSectionRef = useRef<HTMLDivElement>(null)
   const { isAuthenticated, isRegistered, loading: authLoading, getGuestToken, token } = useAuth()
 
   useEffect(() => {
@@ -51,33 +47,6 @@ function App() {
     }
   }, [isAuthenticated, authLoading, getGuestToken])
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const intersectionRatio = entry.intersectionRatio
-            setBgOpacity(Math.min(intersectionRatio * 2, 0.8))
-          }
-        })
-      },
-      {
-        threshold: Array.from({ length: 100 }, (_, i) => i / 100),
-        rootMargin: "-100px",
-      }
-    )
-
-    const currentRef = newsSectionRef.current
-    if (currentRef) {
-      observer.observe(currentRef)
-    }
-
-    return () => {
-      if (currentRef) {
-        observer.unobserve(currentRef)
-      }
-    }
-  }, [])
 
   return (
     <div
@@ -98,98 +67,25 @@ function App() {
       />
 
       <div className="flex flex-col h-screen relative z-[5]">
-        <AnimatePresence>
-          {!isInputFocused && (
-            <motion.header
-              initial={{ opacity: 1, scale: 1 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="flex justify-between items-center px-8 py-6 flex-shrink-0"
-            >
-              <Clock hidden={clockHidden} format={clockFormat} />
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setSettingsOpen(true)}
-                  className="p-2 bg-white/10 text-white border border-white/20 rounded-lg cursor-pointer transition-colors hover:bg-white/20"
-                  aria-label="Open settings"
-                >
-                  <SettingsIcon className="size-5" />
-                </button>
-              </div>
-            </motion.header>
-          )}
-        </AnimatePresence>
+        <Header
+          isInputFocused={isInputFocused}
+          clockHidden={clockHidden}
+          clockFormat={clockFormat}
+          onSettingsClick={() => setSettingsOpen(true)}
+        />
 
-        <section
-          className={`flex-1 flex flex-col px-8 transition-all items-center ${isInputFocused ? "absolute inset-0 z-[10] p-0 justify-start" : ""}`}
-        >
-          <motion.div
-            className="w-full"
-            initial={{ height: "32px" }}
-            animate={isInputFocused ? { height: "40vh" } : { height: "32px" }}
-            transition={{
-              duration: 0.3,
-              ease: "easeInOut",
-            }}
-          />
-          <motion.div
-            className="w-full max-w-[600px]"
-            initial={{
-              width: "600px",
-              maxWidth: "600px",
-              scale: 1,
-            }}
-            animate={
-              isInputFocused
-                ? {
-                    width: "90vw",
-                    scale: 1.1,
-                  }
-                : {
-                    width: "600px",
-                    scale: 1,
-                  }
-            }
-            transition={{
-              duration: 0.3,
-              ease: "easeInOut",
-            }}
-          >
-            <ErrorBoundary appName="Search Component">
-              <Suspense fallback={null}>
-                <AutocompleteInput
-                  onFocusChange={setIsInputFocused}
-                  isRegisteredUser={isRegistered}
-                />
-              </Suspense>
-            </ErrorBoundary>
-          </motion.div>
-        </section>
+        <BannerSection
+          isInputFocused={isInputFocused}
+          onFocusChange={setIsInputFocused}
+          isRegisteredUser={isRegistered}
+        />
       </div>
 
-      <AnimatePresence>
-        {showNews && (
-          <motion.section
-            ref={newsSectionRef}
-            initial={{ opacity: 1 }}
-            exit={{ opacity: 0, y: 50 }}
-            transition={{ duration: 0.3 }}
-            className="relative w-full px-8 py-8"
-          >
-            <ErrorBoundary appName="News Component">
-              <Suspense
-                fallback={
-                  <div className="text-white/70 text-lg py-8 text-center">Loading news...</div>
-                }
-              >
-                <NewsGrid {...({ token: token ?? undefined } as any)} />
-              </Suspense>
-            </ErrorBoundary>
-          </motion.section>
-        )}
-      </AnimatePresence>
+      <NewsSection
+        showNews={showNews}
+        token={token}
+        onIntersectionRatioChange={setBgOpacity}
+      />
 
       <AnimatePresence>
         {settingsOpen && (

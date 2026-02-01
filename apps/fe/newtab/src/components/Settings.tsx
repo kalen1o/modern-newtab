@@ -14,6 +14,8 @@ type SettingsProps = {
   onClockFormatChange: (format: ClockFormat) => void
 }
 
+export type { SettingsProps }
+
 export function Settings({
   isOpen,
   onClose,
