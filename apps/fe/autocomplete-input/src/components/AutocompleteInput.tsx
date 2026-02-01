@@ -6,12 +6,14 @@ interface AutocompleteInputProps {
   logoSrc?: string
   onSearch?: (query: string) => void
   onFocusChange?: (isFocused: boolean) => void
+  isRegisteredUser?: boolean
 }
 
 function AutocompleteInput({
   logoSrc = "/husky.png",
   onSearch,
   onFocusChange,
+  isRegisteredUser = false,
 }: AutocompleteInputProps) {
   const [query, setQuery] = useState("")
   const [suggestions, setSuggestions] = useState<string[]>([])
@@ -23,13 +25,19 @@ function AutocompleteInput({
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   const loadHistory = useCallback(async () => {
+    // Only load history for registered users
+    if (!isRegisteredUser) {
+      setHistory([])
+      return
+    }
+
     try {
       const data = await api.get<{ items: { query: string }[] }>("/api/history")
       setHistory(data.items.map((item: { query: string }) => item.query))
     } catch (error) {
       console.error("Failed to load history:", error)
     }
-  }, [])
+  }, [isRegisteredUser])
 
   useEffect(() => {
     loadHistory()
@@ -60,6 +68,11 @@ function AutocompleteInput({
   }, [onFocusChange])
 
   const saveToHistory = async (searchQuery: string) => {
+    // Only save history for registered users
+    if (!isRegisteredUser) {
+      return
+    }
+
     try {
       await api.post("/api/history", { query: searchQuery })
       loadHistory()
@@ -72,7 +85,7 @@ function AutocompleteInput({
     const value = e.target.value
     setQuery(value)
 
-    // Show suggestions from history
+    // Show suggestions from history (only for registered users)
     if (value.length > 0) {
       const filtered = history.filter((h) => h.toLowerCase().includes(value.toLowerCase()))
       setSuggestions(filtered.slice(0, 5))
@@ -143,7 +156,7 @@ function AutocompleteInput({
         )}
       </div>
 
-      {showDropdown && (suggestions.length > 0 || history.length > 0) && (
+      {showDropdown && (suggestions.length > 0 || (isRegisteredUser && history.length > 0)) && (
         <div
           ref={dropdownRef}
           className={`absolute top-[calc(100%+0.5rem)] left-0 right-0 bg-black/90 backdrop-blur-[20px] rounded-lg border border-white/10 overflow-hidden z-[1000] max-h-[400px] overflow-y-auto ${
@@ -167,7 +180,7 @@ function AutocompleteInput({
                 </button>
               ))}
             </div>
-          ) : (
+          ) : isRegisteredUser && history.length > 0 ? (
             <div className="p-2">
               <div className="px-3 py-2 text-xs text-white/40 uppercase font-semibold tracking-wider">
                 Recent
@@ -183,7 +196,7 @@ function AutocompleteInput({
                 </button>
               ))}
             </div>
-          )}
+          ) : null}
         </div>
       )}
     </div>

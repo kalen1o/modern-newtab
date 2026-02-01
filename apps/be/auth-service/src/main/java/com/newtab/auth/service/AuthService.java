@@ -34,8 +34,8 @@ public class AuthService {
 
         userRepository.save(user);
 
-        String token = jwtProvider.generateToken(user.getEmail());
-        return new AuthResponse(token, token); // Same token for refresh for simplicity
+        String token = jwtProvider.generateToken(user.getEmail(), "registered");
+        return new AuthResponse(token, token, "registered"); // Same token for refresh for simplicity
     }
 
     public AuthResponse login(LoginRequest request) {
@@ -46,19 +46,19 @@ public class AuthService {
             throw new RuntimeException("Invalid credentials");
         }
 
-        String token = jwtProvider.generateToken(user.getEmail());
-        return new AuthResponse(token, token);
+        String token = jwtProvider.generateToken(user.getEmail(), "registered");
+        return new AuthResponse(token, token, "registered");
     }
 
     public AuthResponse refreshToken(String email) {
-        String token = jwtProvider.generateToken(email);
-        return new AuthResponse(token, token);
+        String token = jwtProvider.generateToken(email, "registered");
+        return new AuthResponse(token, token, "registered");
     }
 
     public AuthResponse guestToken() {
         String guestEmail = "guest-" + System.currentTimeMillis() + "@guest.newtab";
-        String token = jwtProvider.generateToken(guestEmail);
-        return new AuthResponse(token, token);
+        String token = jwtProvider.generateToken(guestEmail, "guest");
+        return new AuthResponse(token, token, "guest");
     }
 
     public String validateToken(String token) {

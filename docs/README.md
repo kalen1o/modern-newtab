@@ -1,15 +1,54 @@
 # NewTab Application Documentation
 
-Welcome to the NewTab application documentation. This directory contains comprehensive guides for implementing each phase of the microfrontend monorepo application.
+Welcome to NewTab application documentation. This directory contains comprehensive guides for implementing a hybrid monorepo that combines:
+
+- **Backend Monorepo**: Java Spring Boot microservices with shared infrastructure
+- **Frontend Microfrontends**: React applications with module federation architecture
+- **Shared Libraries**: TypeScript libraries for cross-service type sharing and utilities
+
+This is a unified monorepo managed by NX that orchestrates both backend Java services and frontend React applications.
 
 ## Documentation Structure
 
 The documentation is organized by implementation phases. Each phase includes:
-- Overview and objectives
-- Step-by-step implementation guide
-- Code examples
-- Testing procedures
-- Verification checklists
+|- Overview and objectives
+|- Step-by-step implementation guide
+|- Code examples
+|- Testing procedures
+|- Verification checklists
+
+## Architecture Overview
+
+This project implements a **Hybrid Monorepo** architecture that combines two distinct architectural patterns:
+
+### Backend: Java Spring Boot Monorepo
+- Multiple Spring Boot microservices (`auth-service`, `newtab-service`)
+- Shared infrastructure and configuration
+- Unified database schema managed by Flyway migrations
+- Common security components and JWT utilities
+- Coordinated build and deployment processes
+- Managed within the same monorepo structure as frontend
+
+### Frontend: React Microfrontends
+- Host application (`newtab-shell`) with Module Federation
+- Remote microfrontends (`autocomplete`, `news`, `sponsor-admin`)
+- Independent build and deployment
+- Shared TypeScript libraries (`libs/shared`) for type safety
+- Module Federation for runtime composition
+
+### Unified Workspace
+- NX workspace orchestrates both backend and frontend applications
+- Single monorepo for all services and applications
+- Shared libraries bridge Java backend and React frontend
+- Coordinated dependency management for all services
+- Unified build, test, and deployment workflows
+
+**Key Benefits:**
+- Single source of truth for all code
+- Shared types between backend and frontend via `libs/shared`
+- Unified tooling (NX) for all applications
+- Simplified dependency management
+- Consistent development environment across all services
 
 ## Phases
 
@@ -18,16 +57,16 @@ The documentation is organized by implementation phases. Each phase includes:
 Initialize NX workspace, restructure project into monorepo, and design database schema.
 
 **Topics:**
-- NX workspace manual setup for existing code
-- Directory structure reorganization
-- Database schema design (PostgreSQL tables)
-- Workspace configuration files
+|- NX workspace manual setup for existing code
+|- Directory structure reorganization
+|- Database schema design (PostgreSQL tables)
+|- Workspace configuration files
 
 **Key Files:**
-- `nx.json`
-- `package.json` (root)
-- `pnpm-workspace.yaml`
-- `tsconfig.base.json`
+|- `nx.json`
+|- `package.json` (root)
+|- `pnpm-workspace.yaml`
+|- `tsconfig.base.json`
 
 ---
 
@@ -35,25 +74,32 @@ Initialize NX workspace, restructure project into monorepo, and design database 
 
 Implement Spring Boot services for authentication and core functionality.
 
+**Architecture:**
+This project implements a **Backend Monorepo** pattern where multiple Spring Boot microservices share:
+- Common infrastructure and configuration
+- Shared database and migrations
+- Reusable security components
+- Unified build and deployment processes
+
 **Topics:**
-- Authentication Service (JWT, guest access, email/password)
-- NewTab Service (sponsors, history, news, preferences)
-- Database configuration with Flyway migrations
-- Entity, repository, service, controller patterns
+|- Authentication Service (JWT, guest access, email/password)
+|- NewTab Service (sponsors, history, news, preferences)
+|- Database configuration with Flyway migrations
+|- Entity, repository, service, controller patterns
 
 **Key Technologies:**
-- Spring Boot 3.2.x
-- Spring Security
-- JWT (io.jsonwebtoken)
-- Spring Data JPA
-- PostgreSQL
+|- Spring Boot 3.2.x
+|- Spring Security
+|- JWT (io.jsonwebtoken)
+|- Spring Data JPA
+|- PostgreSQL
 
 **Endpoints:**
-- `/api/auth/*` - Authentication
-- `/api/history/*` - Search history
-- `/api/sponsors/*` - Sponsor management
-- `/api/news/*` - News feed
-- `/api/preferences/*` - User preferences
+|- `/api/auth/*` - Authentication
+|- `/api/history/*` - Search history
+|- `/api/sponsors/*` - Sponsor management
+|- `/api/news/*` - News feed
+|- `/api/preferences/*` - User preferences
 
 ---
 
@@ -62,22 +108,22 @@ Implement Spring Boot services for authentication and core functionality.
 Set up React applications with module federation.
 
 **Topics:**
-- Vite plugin federation configuration
-- NewTab shell (host application)
-- Autocomplete input module (remote)
-- Sponsor admin application
-- Component architecture
+|- Vite plugin federation configuration
+|- NewTab shell (host application)
+|- Autocomplete input module (remote)
+|- Sponsor admin application
+|- Component architecture
 
 **Key Technologies:**
-- React 19
-- Vite 7
-- TypeScript 5
-- @originjs/vite-plugin-federation
+|- React 19
+|- Vite 7
+|- TypeScript 5
+|- @originjs/vite-plugin-federation
 
 **Applications:**
-- `newtab-shell` (port 5173)
-- `autocomplete-input` (port 5001)
-- `sponsor-admin` (port 5174)
+|- `newtab-shell` (port 5173)
+|- `autocomplete-input` (port 5001)
+|- `sponsor-admin` (port 5174)
 
 ---
 
@@ -86,18 +132,18 @@ Set up React applications with module federation.
 Configure Nginx as reverse proxy with authentication middleware.
 
 **Topics:**
-- Reverse proxy routing
-- Authentication middleware (auth_request)
-- Guest access handling
-- CORS configuration
-- Static asset serving
-- SSL/TLS setup
+|- Reverse proxy routing
+|- Authentication middleware (auth_request)
+|- Guest access handling
+|- CORS configuration
+|- Static asset serving
+|- SSL/TLS setup
 
 **Routing:**
-- `/api/auth/*` → auth-service:8081
-- `/api/*` → newtab-service:8082
-- `/admin/*` → sponsor-admin:5174
-- `/` → newtab-shell:5173
+|- `/api/auth/*` → auth-service:8081
+|- `/api/*` → newtab-service:8082
+|- `/admin/*` → sponsor-admin:5174
+|- `/` → newtab-shell:5173
 
 ---
 
@@ -106,22 +152,22 @@ Configure Nginx as reverse proxy with authentication middleware.
 Containerize all services and orchestrate with Docker Compose.
 
 **Topics:**
-- Docker Compose configuration
-- Dockerfiles for all services
-- Environment variables management
-- Health checks
-- Volume management
-- Network configuration
-- Service scaling
+|- Docker Compose configuration
+|- Dockerfiles for all services
+|- Environment variables management
+|- Health checks
+|- Volume management
+|- Network configuration
+|- Service scaling
 
 **Services:**
-- PostgreSQL (5432)
-- auth-service (8081)
-- newtab-service (8082)
-- newtab-shell (5173)
-- autocomplete (5001)
-- sponsor-admin (5174)
-- nginx (80, 443)
+|- PostgreSQL (5432)
+|- auth-service (8081)
+|- newtab-service (8082)
+|- newtab-shell (5173)
+|- autocomplete (5001)
+|- sponsor-admin (5174)
+|- nginx (80, 443)
 
 ---
 
@@ -130,18 +176,18 @@ Containerize all services and orchestrate with Docker Compose.
 Specific implementation details for core features.
 
 **Topics:**
-- Sponsor rotation logic (simple random)
-- Search history flow
-- News feed integration (RSS fetching)
-- Settings & theme management
-- Frontend hooks and components
+|- Sponsor rotation logic (simple random)
+|- Search history flow
+|- News feed integration (RSS fetching)
+|- Settings & theme management
+|- Frontend hooks and components
 
 **Features:**
-- Random sponsor selection
-- Search history CRUD
-- RSS news caching (every 30 minutes)
-- Theme switching (light/dark/auto)
-- Visibility toggles
+|- Random sponsor selection
+|- Search history CRUD
+|- RSS news caching (every 30 minutes)
+|- Theme switching (light/dark/auto)
+|- Visibility toggles
 
 ---
 
@@ -150,18 +196,18 @@ Specific implementation details for core features.
 Configure NX workspace with project.json files and custom generators.
 
 **Topics:**
-- Project.json configuration for all apps
-- NX cache and performance
-- Dependency graph visualization
-- Affected commands
-- Custom NX generators
-- NX workspace scripts
+|- Project.json configuration for all apps
+|- NX cache and performance
+|- Dependency graph visualization
+|- Affected commands
+|- Custom NX generators
+|- NX workspace scripts
 
 **NX Commands:**
-- `nx run <project>:<target>` - Run specific target
-- `nx run-many -t <target> --all` - Run target on all projects
-- `nx affected -t build` - Build only changed projects
-- `nx graph` - Visualize dependencies
+|- `nx run <project>:<target>` - Run specific target
+|- `nx run-many -t <target> --all` - Run target on all projects
+|- `nx affected -t build` - Build only changed projects
+|- `nx graph` - Visualize dependencies
 
 ---
 
@@ -170,18 +216,18 @@ Configure NX workspace with project.json files and custom generators.
 Testing strategies and comprehensive documentation.
 
 **Topics:**
-- Backend testing (JUnit5, Mockito)
-- Frontend testing (Vitest, React Testing Library)
-- E2E testing (Playwright)
-- Main README
-- API documentation
-- Development guide
+|- Backend testing (JUnit5, Mockito)
+|- Frontend testing (Vitest, React Testing Library)
+|- E2E testing (Playwright)
+|- Main README
+|- API documentation
+|- Development guide
 
 **Testing Coverage:**
-- Unit tests (components, services)
-- Integration tests (API endpoints)
-- E2E tests (user flows)
-- Test execution and CI integration
+|- Unit tests (components, services)
+|- Integration tests (API endpoints)
+|- E2E tests (user flows)
+|- Test execution and CI integration
 
 ---
 
@@ -190,23 +236,23 @@ Testing strategies and comprehensive documentation.
 Security best practices and common vulnerabilities.
 
 **Topics:**
-- JWT token management (expiration, rotation, revocation)
-- Password hashing (BCrypt)
-- CORS configuration
-- SQL injection prevention
-- XSS protection
-- Rate limiting
-- Admin-only endpoint protection
-- Security headers
-- HTTPS/TLS setup
-- Security monitoring and logging
+|- JWT token management (expiration, rotation, revocation)
+|- Password hashing (BCrypt)
+|- CORS configuration
+|- SQL injection prevention
+|- XSS protection
+|- Rate limiting
+|- Admin-only endpoint protection
+|- Security headers
+|- HTTPS/TLS setup
+|- Security monitoring and logging
 
 **Security Areas:**
-- Authentication & Authorization
-- Input validation
-- Data protection
-- Network security
-- Monitoring & alerting
+|- Authentication & Authorization
+|- Input validation
+|- Data protection
+|- Network security
+|- Monitoring & alerting
 
 ---
 
@@ -215,20 +261,20 @@ Security best practices and common vulnerabilities.
 Code formatting and linting with Biome toolchain.
 
 **Topics:**
-- Biome installation and configuration
-- Formatting and linting rules
-- Command-line usage
-- NX workspace integration
-- Editor setup (VSCode, JetBrains)
-- Migration from ESLint/Prettier
-- CI/CD integration
-- Troubleshooting
+|- Biome installation and configuration
+|- Formatting and linting rules
+|- Command-line usage
+|- NX workspace integration
+|- Editor setup (VSCode, JetBrains)
+|- Migration from ESLint/Prettier
+|- CI/CD integration
+|- Troubleshooting
 
 **Key Commands:**
-- `pnpm biome:check` - Check formatting and linting
-- `pnpm biome:check:fix` - Fix all issues
-- `nx run <project>:biome:check` - Check specific project
-- `biome check --write` - Direct CLI usage
+|- `pnpm biome:check` - Check formatting and linting
+|- `pnpm biome:check:fix` - Fix all issues
+|- `nx run <project>:biome:check` - Check specific project
+|- `biome check --write` - Direct CLI usage
 
 ---
 
@@ -394,5 +440,5 @@ When adding features or fixing bugs:
 
 ---
 
-**Last Updated**: January 30, 2026
-**Documentation Version**: 1.0
+**Last Updated**: January 31, 2026
+**Documentation Version**: 1.1

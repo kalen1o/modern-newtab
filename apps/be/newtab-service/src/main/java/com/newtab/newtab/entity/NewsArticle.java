@@ -22,6 +22,12 @@ public class NewsArticle {
     @Column
     private String source;
 
+    @Column(name = "image_url")
+    private String imageUrl;
+
+    @Column
+    private String category;
+
     @Column(name = "published_at")
     private LocalDateTime publishedAt;
 
@@ -71,6 +77,22 @@ public class NewsArticle {
 
     public void setSource(String source) {
         this.source = source;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
     }
 
     public LocalDateTime getPublishedAt() {

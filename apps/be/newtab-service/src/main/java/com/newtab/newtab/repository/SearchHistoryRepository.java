@@ -7,5 +7,5 @@ import java.util.List;
 
 @Repository
 public interface SearchHistoryRepository extends JpaRepository<SearchHistory, Long> {
-    List<SearchHistory> findByUserIdOrderByCreatedAtDesc(Integer userId);
+    List<SearchHistory> findByUserEmailOrderByCreatedAtDesc(String userEmail);
 }

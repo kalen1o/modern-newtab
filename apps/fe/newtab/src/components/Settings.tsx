@@ -1,5 +1,6 @@
 import { motion } from "framer-motion"
-import { X } from "lucide-react"
+import { X, LogIn, LogOut, User } from "lucide-react"
+import { useAuth } from "../hooks/useAuth"
 
 type SettingsProps = {
   isOpen: boolean
@@ -9,6 +10,8 @@ type SettingsProps = {
 }
 
 export function Settings({ isOpen, onClose, showNews, onShowNewsChange }: SettingsProps) {
+  const { isRegistered, logout } = useAuth()
+
   if (!isOpen) return null
 
   return (
@@ -43,17 +46,61 @@ export function Settings({ isOpen, onClose, showNews, onShowNewsChange }: Settin
               <X className="size-5" />
             </button>
           </div>
-          <div className="space-y-4">
-            <label className="flex items-center justify-between gap-4 cursor-pointer">
-              <span className="text-sm text-slate-700 dark:text-slate-300">Show news section</span>
-              <button
-                type="button"
-                onClick={() => onShowNewsChange(!showNews)}
-                className="px-4 py-2 bg-white/10 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-600 rounded-lg text-sm transition-colors hover:bg-slate-100 dark:hover:bg-slate-700"
-              >
-                {showNews ? "Hide News" : "Show News"}
-              </button>
-            </label>
+          <div className="space-y-6">
+            <div className="p-4 bg-slate-100/50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700">
+              <div className="flex items-center gap-2 mb-2">
+                <User className="size-4 text-slate-600 dark:text-slate-400" />
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Account Status
+                </span>
+              </div>
+              <div className="text-sm text-slate-600 dark:text-slate-400">
+                {isRegistered ? (
+                  <span className="text-green-600 dark:text-green-400 font-medium">
+                    Registered User
+                  </span>
+                ) : (
+                  <span className="text-amber-600 dark:text-amber-400 font-medium">Guest Mode</span>
+                )}
+              </div>
+              {isRegistered && (
+                <button
+                  type="button"
+                  onClick={logout}
+                  className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-100/80 text-red-700 border border-red-300/80 rounded-lg text-sm transition-colors hover:bg-red-200/80"
+                >
+                  <LogOut className="size-4" />
+                  Logout
+                </button>
+              )}
+              {!isRegistered && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    // Navigate to login or show login modal
+                    alert("Login functionality coming soon!")
+                  }}
+                  className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-100/80 text-blue-700 border border-blue-300/80 rounded-lg text-sm transition-colors hover:bg-blue-200/80"
+                >
+                  <LogIn className="size-4" />
+                  Sign In
+                </button>
+              )}
+            </div>
+            <div className="space-y-4">
+              <label className="flex items-center justify-between gap-4 cursor-pointer">
+                <span className="text-sm text-slate-700 dark:text-slate-300">
+                  Show news section
+                </span>
+                <button
+                  type="button"
+                  onClick={() => onShowNewsChange(!showNews)}
+                  className="px-4 py-2 bg-white/10 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-600 rounded-lg text-sm transition-colors hover:bg-slate-100 dark:hover:bg-slate-700"
+                >
+                  {showNews ? "Hide News" : "Show News"}
+                </button>
+              </label>
+            </div>
           </div>
         </div>
       </motion.aside>

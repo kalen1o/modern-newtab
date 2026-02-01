@@ -3,6 +3,7 @@ import { type AuthResponse, authService } from "../api/auth"
 
 export function useAuth() {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
+    const [isRegistered, setIsRegistered] = useState<boolean>(false)
     const [loading, setLoading] = useState<boolean>(true)
     const [error, setError] = useState<string | null>(null)
 
@@ -13,10 +14,12 @@ export function useAuth() {
                 if (hasToken) {
                     await authService.validateToken()
                     setIsAuthenticated(true)
+                    setIsRegistered(authService.isRegisteredUser())
                 }
             } catch (_err) {
                 authService.logout()
                 setIsAuthenticated(false)
+                setIsRegistered(false)
             } finally {
                 setLoading(false)
             }
@@ -31,6 +34,7 @@ export function useAuth() {
         try {
             const response = await authService.getGuestToken()
             setIsAuthenticated(true)
+            setIsRegistered(false)
             return response
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : "Failed to get guest token"
@@ -47,6 +51,7 @@ export function useAuth() {
         try {
             const response = await authService.login({ email, password })
             setIsAuthenticated(true)
+            setIsRegistered(true)
             return response
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : "Login failed"
@@ -60,11 +65,13 @@ export function useAuth() {
     const logout = () => {
         authService.logout()
         setIsAuthenticated(false)
+        setIsRegistered(false)
         setError(null)
     }
 
     return {
         isAuthenticated,
+        isRegistered,
         loading,
         error,
         getGuestToken,

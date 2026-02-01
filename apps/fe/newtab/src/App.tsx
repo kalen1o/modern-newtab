@@ -15,7 +15,7 @@ function App() {
   const [bgOpacity, setBgOpacity] = useState(0)
   const [isInputFocused, setIsInputFocused] = useState(false)
   const newsSectionRef = useRef<HTMLDivElement>(null)
-  const { isAuthenticated, loading: authLoading, getGuestToken } = useAuth()
+  const { isAuthenticated, isRegistered, loading: authLoading, getGuestToken } = useAuth()
 
   useEffect(() => {
     if (!isAuthenticated && !authLoading) {
@@ -147,7 +147,10 @@ function App() {
           >
             <ErrorBoundary appName="Search Component">
               <Suspense fallback={null}>
-                <AutocompleteInput onFocusChange={setIsInputFocused} />
+                <AutocompleteInput
+                  onFocusChange={setIsInputFocused}
+                  isRegisteredUser={isRegistered}
+                />
               </Suspense>
             </ErrorBoundary>
           </motion.div>

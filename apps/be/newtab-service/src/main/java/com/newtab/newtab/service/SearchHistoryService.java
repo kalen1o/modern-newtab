@@ -15,15 +15,15 @@ public class SearchHistoryService {
         this.searchHistoryRepository = searchHistoryRepository;
     }
 
-    public SearchHistory saveSearch(SearchHistoryRequest request) {
+    public SearchHistory saveSearch(SearchHistoryRequest request, String userEmail) {
         SearchHistory searchHistory = new SearchHistory();
-        searchHistory.setUserId(request.getUserId());
+        searchHistory.setUserEmail(userEmail);
         searchHistory.setQuery(request.getQuery());
         return searchHistoryRepository.save(searchHistory);
     }
 
-    public List<SearchHistory> getUserHistory(Integer userId) {
-        return searchHistoryRepository.findByUserIdOrderByCreatedAtDesc(userId);
+    public List<SearchHistory> getUserHistory(String userEmail) {
+        return searchHistoryRepository.findByUserEmailOrderByCreatedAtDesc(userEmail);
     }
 
     public void deleteHistory(Long id) {

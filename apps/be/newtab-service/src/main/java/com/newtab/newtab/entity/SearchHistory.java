@@ -10,8 +10,8 @@ public class SearchHistory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id")
-    private Integer userId;
+    @Column(name = "user_email", nullable = false)
+    private String userEmail;
 
     @Column(nullable = false)
     private String query;
@@ -32,12 +32,12 @@ public class SearchHistory {
         this.id = id;
     }
 
-    public Integer getUserId() {
-        return userId;
+    public String getUserEmail() {
+        return userEmail;
     }
 
-    public void setUserId(Integer userId) {
-        this.userId = userId;
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
     }
 
     public String getQuery() {

@@ -27,6 +27,15 @@ public class JwtProvider {
         return claims.getSubject();
     }
 
+    public String getUserTypeFromToken(String token) {
+        Claims claims = Jwts.parser()
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+        return claims.get("userType", String.class);
+    }
+
     public boolean validateToken(String token) {
         try {
             Jwts.parser()

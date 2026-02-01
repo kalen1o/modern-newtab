@@ -1,23 +1,24 @@
 package com.newtab.newtab.dto;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public class SearchHistoryRequest {
-    @NotNull(message = "User ID is required")
-    private Integer userId;
+    @NotBlank(message = "User email is required")
+    @Email(message = "Invalid email format")
+    private String userEmail;
 
     @NotBlank(message = "Query is required")
     @Size(max = 500, message = "Query must be less than 500 characters")
     private String query;
 
-    public Integer getUserId() {
-        return userId;
+    public String getUserEmail() {
+        return userEmail;
     }
 
-    public void setUserId(Integer userId) {
-        this.userId = userId;
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
     }
 
     public String getQuery() {
