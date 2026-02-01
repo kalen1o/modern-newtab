@@ -183,7 +183,7 @@ function NewsGrid({ token }: NewsGridProps) {
                   backdropFilter: isVisible ? "blur(24px)" : "blur(4px)",
                 }}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
-                className={`w-full max-w-[50%] flex flex-col bg-white/10 border border-white/20 rounded-lg text-inherit hover:-translate-y-1 hover:bg-white/15 hover:border-white/30 hover:shadow-lg shadow-xl`}
+                className={`w-full max-w-[50%] flex flex-col bg-black/30 border border-white/10 rounded-lg text-inherit shadow-xl backdrop-blur-sm`}
               >
                 <div className="p-4 flex flex-col h-full">
                   {article.imageUrl && (
@@ -234,7 +234,7 @@ function NewsGrid({ token }: NewsGridProps) {
                   backdropFilter: isVisible ? "blur(24px)" : "blur(4px)",
                 }}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
-                className={`w-full max-w-[50%] flex flex-col md:flex-row bg-white/10 border border-white/20 rounded-lg text-inherit hover:-translate-y-1 hover:bg-white/15 hover:border-white/30 hover:shadow-lg shadow-xl`}
+                className={`w-full max-w-[50%] flex flex-col md:flex-row bg-black/30 border border-white/10 rounded-lg text-inherit shadow-xl backdrop-blur-sm`}
               >
                 <div className="p-4 flex-1 flex flex-col justify-center">
                   <div className="flex items-center gap-2 mb-2">
