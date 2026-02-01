@@ -1,7 +1,10 @@
 {
-  "name": "@libs/shared",
-  "version": "0.0.0",
-  "type": "module",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts"
+    "name": "@libs/shared",
+    "version": "0.0.0",
+    "type": "module",
+    "main": "./src/index.ts",
+    "types": "./src/index.ts",
+    "dependencies": {
+        "date-fns": "^4.1.0"
+    }
 }

@@ -1,15 +1,29 @@
 import { motion } from "framer-motion"
-import { LogIn, LogOut, User, X } from "lucide-react"
+import { Clock as ClockIcon, LogIn, LogOut, User, X } from "lucide-react"
 import { useAuth } from "../hooks/useAuth"
+import type { ClockFormat } from "./Clock"
 
 type SettingsProps = {
   isOpen: boolean
   onClose: () => void
   showNews: boolean
   onShowNewsChange: (show: boolean) => void
+  clockHidden: boolean
+  onClockHiddenChange: (hidden: boolean) => void
+  clockFormat: ClockFormat
+  onClockFormatChange: (format: ClockFormat) => void
 }
 
-export function Settings({ isOpen, onClose, showNews, onShowNewsChange }: SettingsProps) {
+export function Settings({
+  isOpen,
+  onClose,
+  showNews,
+  onShowNewsChange,
+  clockHidden,
+  onClockHiddenChange,
+  clockFormat,
+  onClockFormatChange,
+}: SettingsProps) {
   const { isRegistered, logout } = useAuth()
 
   if (!isOpen) return null
@@ -108,6 +122,45 @@ export function Settings({ isOpen, onClose, showNews, onShowNewsChange }: Settin
                   />
                 </button>
               </label>
+            </div>
+            <div className="p-4 bg-slate-100/50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700">
+              <div className="flex items-center gap-2 mb-3">
+                <ClockIcon className="size-4 text-slate-600 dark:text-slate-400" />
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Clock
+                </span>
+              </div>
+              <label className="flex items-center justify-between gap-4 cursor-pointer mb-3">
+                <span className="text-sm text-slate-700 dark:text-slate-300">Show clock</span>
+                <button
+                  type="button"
+                  onClick={() => onClockHiddenChange(!clockHidden)}
+                  className={`relative w-12 h-6 rounded-full transition-colors duration-200 ${
+                    !clockHidden ? "bg-indigo-500" : "bg-slate-300 dark:bg-slate-600"
+                  }`}
+                  aria-pressed={!clockHidden}
+                  aria-label="Toggle clock visibility"
+                >
+                  <span
+                    className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow-md transition-transform duration-200 ${
+                      !clockHidden ? "translate-x-6" : "translate-x-0"
+                    }`}
+                  />
+                </button>
+              </label>
+              <div className="space-y-2">
+                <span className="text-sm text-slate-700 dark:text-slate-300">Time format</span>
+                <select
+                  value={clockFormat}
+                  onChange={(e) => onClockFormatChange(e.target.value as ClockFormat)}
+                  className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  aria-label="Clock time format"
+                >
+                  <option value="automatic">Automatic</option>
+                  <option value="12h">12 hours</option>
+                  <option value="24h">24 hours</option>
+                </select>
+              </div>
             </div>
           </div>
         </div>

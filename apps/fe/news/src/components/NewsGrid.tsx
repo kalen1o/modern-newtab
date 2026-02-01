@@ -1,3 +1,4 @@
+import { formatArticleDate } from "@libs/shared"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { RefreshCw } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
@@ -214,11 +215,7 @@ function NewsGrid({ token }: NewsGridProps) {
                   )}
                   {article.publishedAt && (
                     <div className="text-sm text-white/50 mt-auto pt-3 border-t border-white/5">
-                      {new Date(article.publishedAt).toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })}
+                      {formatArticleDate(article.publishedAt)}
                     </div>
                   )}
                 </div>
@@ -262,7 +259,7 @@ function NewsGrid({ token }: NewsGridProps) {
                   )}
                   {article.publishedAt && (
                     <div className="text-xs text-white/50 mt-auto pt-2 border-t border-white/5">
-                      {new Date(article.publishedAt).toLocaleDateString()}
+                      {formatArticleDate(article.publishedAt)}
                     </div>
                   )}
                 </div>
