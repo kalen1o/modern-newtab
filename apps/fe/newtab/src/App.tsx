@@ -5,7 +5,7 @@ import type { ClockFormat } from "./components/Clock"
 import { Header } from "./components/Header"
 import { NewsSection } from "./components/NewsSection"
 import { Settings } from "./components/Settings"
-import { BACKGROUND_KEY } from "./constants"
+import type { BackgroundConfig } from "./constants"
 import { useAuth } from "./hooks/useAuth"
 import {
   CLOCK_FORMAT_KEY,
@@ -13,6 +13,7 @@ import {
   readBackground,
   readClockFormat,
   readClockHidden,
+  writeBackground,
 } from "./utils/storage"
 
 const BG_OVERLAY_MAX_OPACITY = 0.5
@@ -23,7 +24,7 @@ function App() {
   const [bgOpacity, setBgOpacity] = useState(0)
   const [clockHidden, setClockHidden] = useState(readClockHidden)
   const [clockFormat, setClockFormat] = useState<ClockFormat>(readClockFormat)
-  const [backgroundImage, setBackgroundImage] = useState(readBackground)
+  const [backgroundConfig, setBackgroundConfig] = useState<BackgroundConfig>(readBackground)
   const [isInputFocused, setIsInputFocused] = useState(false)
   const initialScreenRef = useRef<HTMLDivElement | null>(null)
   const { isAuthenticated, isRegistered, loading: authLoading, getGuestToken, token } = useAuth()
@@ -61,14 +62,26 @@ function App() {
     >
       <div
         className="fixed inset-0"
-        style={{
-          backgroundImage: `url('/backgrounds/${backgroundImage}')`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-          backgroundAttachment: "fixed",
-          zIndex: 0,
-        }}
+        style={
+          backgroundConfig.type === "image"
+            ? {
+                backgroundImage: `url('/backgrounds/${backgroundConfig.filename}')`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
+                backgroundAttachment: "fixed",
+                zIndex: 0,
+              }
+            : backgroundConfig.type === "gradient"
+              ? {
+                  background: `linear-gradient(${backgroundConfig.direction}, ${backgroundConfig.color1}, ${backgroundConfig.color2})`,
+                  zIndex: 0,
+                }
+              : {
+                  backgroundColor: backgroundConfig.color,
+                  zIndex: 0,
+                }
+        }
         aria-hidden
       />
       <div
@@ -122,14 +135,10 @@ function App() {
                 // ignore
               }
             }}
-            backgroundImage={backgroundImage}
-            onBackgroundImageChange={(filename: string) => {
-              setBackgroundImage(filename)
-              try {
-                localStorage.setItem(BACKGROUND_KEY, filename)
-              } catch {
-                // ignore
-              }
+            backgroundConfig={backgroundConfig}
+            onBackgroundConfigChange={(config: BackgroundConfig) => {
+              setBackgroundConfig(config)
+              writeBackground(config)
             }}
           />
         )}

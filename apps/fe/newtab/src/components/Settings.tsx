@@ -1,7 +1,14 @@
 import { useCallback, useEffect } from "react"
 import { motion } from "framer-motion"
-import { Clock as ClockIcon, Image as ImageIcon, Info, LogIn, LogOut, X } from "lucide-react"
-import { BACKGROUNDS } from "../constants"
+import { Clock as ClockIcon, Image as ImageIcon, Info, LogIn, LogOut, Newspaper, X } from "lucide-react"
+import {
+  BACKGROUNDS,
+  type BackgroundConfig,
+  type BackgroundType,
+  GRADIENT_DIRECTIONS,
+  GRADIENT_PRESETS,
+  SOLID_PRESETS,
+} from "../constants"
 import { useAuth } from "../hooks/useAuth"
 import type { ClockFormat } from "./Clock"
 
@@ -14,8 +21,8 @@ type SettingsProps = {
   onClockHiddenChange: (hidden: boolean) => void
   clockFormat: ClockFormat
   onClockFormatChange: (format: ClockFormat) => void
-  backgroundImage: string
-  onBackgroundImageChange: (filename: string) => void
+  backgroundConfig: BackgroundConfig
+  onBackgroundConfigChange: (config: BackgroundConfig) => void
 }
 
 export type { SettingsProps }
@@ -29,8 +36,8 @@ export function Settings({
   onClockHiddenChange,
   clockFormat,
   onClockFormatChange,
-  backgroundImage,
-  onBackgroundImageChange,
+  backgroundConfig,
+  onBackgroundConfigChange,
 }: SettingsProps) {
   const { isRegistered, logout } = useAuth()
 
@@ -72,7 +79,9 @@ export function Settings({
       >
         <div className="flex flex-col h-full p-6">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Customize new tab page</h2>
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+              Customize new tab page
+            </h2>
             <button
               type="button"
               onClick={handleClose}
@@ -94,23 +103,152 @@ export function Settings({
               <div className="space-y-3">
                 <div className="flex items-center justify-between gap-4">
                   <span className="text-sm text-slate-700 dark:text-slate-300 shrink-0">
-                    Background
+                    Background type
                   </span>
                   <select
-                    value={backgroundImage}
-                    onChange={(e) => onBackgroundImageChange(e.target.value)}
+                    value={backgroundConfig.type}
+                    onChange={(e) => {
+                      const t = e.target.value as BackgroundType
+                      if (t === "image")
+                        onBackgroundConfigChange({
+                          type: "image",
+                          filename: BACKGROUNDS[0].filename,
+                        })
+                      else if (t === "gradient")
+                        onBackgroundConfigChange({
+                          type: "gradient",
+                          direction: GRADIENT_DIRECTIONS[0].value,
+                          color1: GRADIENT_PRESETS[0].color1,
+                          color2: GRADIENT_PRESETS[0].color2,
+                        })
+                      else
+                        onBackgroundConfigChange({
+                          type: "solid",
+                          color: SOLID_PRESETS[0].color,
+                        })
+                    }}
                     className="min-w-0 flex-1 max-w-[140px] px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    aria-label="Background image"
+                    aria-label="Background type"
                   >
-                    {BACKGROUNDS.map((bg) => (
-                      <option key={bg.id} value={bg.filename}>
-                        {bg.label}
-                      </option>
-                    ))}
+                    <option value="image">Image</option>
+                    <option value="gradient">Gradient</option>
+                    <option value="solid">Solid</option>
                   </select>
                 </div>
+                {backgroundConfig.type === "image" && (
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="text-sm text-slate-700 dark:text-slate-300 shrink-0">
+                      Image
+                    </span>
+                    <select
+                      value={backgroundConfig.filename}
+                      onChange={(e) =>
+                        onBackgroundConfigChange({
+                          type: "image",
+                          filename: e.target.value,
+                        })
+                      }
+                      className="min-w-0 flex-1 max-w-[140px] px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      aria-label="Background image"
+                    >
+                      {BACKGROUNDS.map((bg) => (
+                        <option key={bg.id} value={bg.filename}>
+                          {bg.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                {backgroundConfig.type === "gradient" && (
+                  <>
+                    <div className="flex items-center justify-between gap-4">
+                      <span className="text-sm text-slate-700 dark:text-slate-300 shrink-0">
+                        Direction
+                      </span>
+                      <select
+                        value={backgroundConfig.direction}
+                        onChange={(e) =>
+                          onBackgroundConfigChange({
+                            ...backgroundConfig,
+                            direction: e.target.value,
+                          })
+                        }
+                        className="min-w-0 flex-1 max-w-[140px] px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        aria-label="Gradient direction"
+                      >
+                        {GRADIENT_DIRECTIONS.map((d) => (
+                          <option key={d.id} value={d.value}>
+                            {d.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="flex items-center justify-between gap-4">
+                      <span className="text-sm text-slate-700 dark:text-slate-300 shrink-0">
+                        Preset
+                      </span>
+                      <select
+                        value={
+                          GRADIENT_PRESETS.find(
+                            (p) =>
+                              p.color1 === backgroundConfig.color1 &&
+                              p.color2 === backgroundConfig.color2
+                          )?.id ?? ""
+                        }
+                        onChange={(e) => {
+                          const preset = GRADIENT_PRESETS.find((p) => p.id === e.target.value)
+                          if (preset)
+                            onBackgroundConfigChange({
+                              type: "gradient",
+                              direction: backgroundConfig.direction,
+                              color1: preset.color1,
+                              color2: preset.color2,
+                            })
+                        }}
+                        className="min-w-0 flex-1 max-w-[140px] px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        aria-label="Gradient preset"
+                      >
+                        <option value="">Custom</option>
+                        {GRADIENT_PRESETS.map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </>
+                )}
+                {backgroundConfig.type === "solid" && (
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="text-sm text-slate-700 dark:text-slate-300 shrink-0">
+                      Color
+                    </span>
+                    <select
+                      value={
+                        SOLID_PRESETS.find((p) => p.color === backgroundConfig.color)?.id ?? ""
+                      }
+                      onChange={(e) => {
+                        const preset = SOLID_PRESETS.find((p) => p.id === e.target.value)
+                        if (preset)
+                          onBackgroundConfigChange({
+                            type: "solid",
+                            color: preset.color,
+                          })
+                      }}
+                      className="min-w-0 flex-1 max-w-[140px] px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      aria-label="Solid color"
+                    >
+                      {SOLID_PRESETS.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
                 <label className="flex items-center justify-between gap-4 cursor-pointer">
-                  <span className="text-sm text-slate-700 dark:text-slate-300 shrink-0">
+                  <span className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300 shrink-0">
+                    <Newspaper className="size-4 text-slate-600 dark:text-slate-400" />
                     Show news section
                   </span>
                   <button
