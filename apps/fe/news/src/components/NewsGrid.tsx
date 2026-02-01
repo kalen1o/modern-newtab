@@ -51,8 +51,8 @@ function NewsGrid() {
         })
       },
       {
-        threshold: 0.1,
-        rootMargin: "-50px 0px -50px 0px",
+        threshold: 0.95,
+        rootMargin: "0px",
       }
     )
 
@@ -129,11 +129,13 @@ function NewsGrid() {
               href={article.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full max-w-[50%] flex flex-col bg-white/10 backdrop-blur-md border border-white/20 rounded-lg text-inherit transition-all hover:-translate-y-1 hover:bg-white/15 hover:border-white/30 hover:shadow-lg shadow-xl"
+              className={`w-full max-w-[50%] flex flex-col bg-white/10 border border-white/20 rounded-lg text-inherit transition-all hover:-translate-y-1 hover:bg-white/15 hover:border-white/30 hover:shadow-lg shadow-xl ${
+                isVisible ? "backdrop-blur-xl" : "backdrop-blur-sm"
+              }`}
               style={{
-                opacity: isVisible ? 1 : 0,
+                opacity: isVisible ? 1 : 0.5,
                 transform: isVisible ? "translateY(0)" : "translateY(20px)",
-                transition: "opacity 0.3s ease-in-out, transform 0.3s ease-in-out",
+                transition: "opacity 0.3s ease-in-out, transform 0.3s ease-in-out, backdrop-filter 0.3s ease-in-out",
               }}
             >
               <div className="p-4 flex flex-col h-full">
@@ -181,11 +183,13 @@ function NewsGrid() {
               href={article.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full max-w-[50%] flex flex-col md:flex-row bg-white/10 backdrop-blur-md border border-white/20 rounded-lg text-inherit transition-all hover:-translate-y-1 hover:bg-white/15 hover:border-white/30 hover:shadow-lg shadow-xl"
+              className={`w-full max-w-[50%] flex flex-col md:flex-row bg-white/10 border border-white/20 rounded-lg text-inherit transition-all hover:-translate-y-1 hover:bg-white/15 hover:border-white/30 hover:shadow-lg shadow-xl ${
+                isVisible ? "backdrop-blur-xl" : "backdrop-blur-sm"
+              }`}
               style={{
-                opacity: isVisible ? 1 : 0,
+                opacity: isVisible ? 1 : 0.5,
                 transform: isVisible ? "translateY(0)" : "translateY(20px)",
-                transition: "opacity 0.3s ease-in-out, transform 0.3s ease-in-out",
+                transition: "opacity 0.3s ease-in-out, transform 0.3s ease-in-out, backdrop-filter 0.3s ease-in-out",
               }}
             >
               <div className="p-4 flex-1 flex flex-col justify-center">
