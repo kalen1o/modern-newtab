@@ -12,6 +12,8 @@ declare module "autocomplete/Autocomplete" {
         onSearch?: (query: string) => void
         onFocusChange?: (isFocused: boolean) => void
         isRegisteredUser?: boolean
+        /** URL template for search redirect; {q} is replaced with the query. Defaults to Google. */
+        searchUrlTemplate?: string
     }
     const AutocompleteInput: React.ComponentType<AutocompleteInputProps>
     export default AutocompleteInput

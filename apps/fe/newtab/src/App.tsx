@@ -7,13 +7,16 @@ import { NewsSection } from "./components/NewsSection"
 import { Settings } from "./components/Settings"
 import type { BackgroundConfig } from "./constants"
 import { useAuth } from "./hooks/useAuth"
+import type { SearchEngineId } from "./constants"
 import {
   CLOCK_FORMAT_KEY,
   CLOCK_HIDDEN_KEY,
   readBackground,
   readClockFormat,
   readClockHidden,
+  readSearchEngine,
   writeBackground,
+  writeSearchEngine,
 } from "./utils/storage"
 
 const BG_OVERLAY_MAX_OPACITY = 0.5
@@ -22,6 +25,7 @@ function App() {
   const [showNews, setShowNews] = useState(true)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [bgOpacity, setBgOpacity] = useState(0)
+  const [searchEngine, setSearchEngine] = useState<SearchEngineId>(readSearchEngine)
   const [clockHidden, setClockHidden] = useState(readClockHidden)
   const [clockFormat, setClockFormat] = useState<ClockFormat>(readClockFormat)
   const [backgroundConfig, setBackgroundConfig] = useState<BackgroundConfig>(readBackground)
@@ -104,6 +108,7 @@ function App() {
           isInputFocused={isInputFocused}
           onFocusChange={setIsInputFocused}
           isRegisteredUser={isRegistered}
+          searchEngine={searchEngine}
         />
       </div>
 
@@ -117,6 +122,11 @@ function App() {
             onClose={() => setSettingsOpen(false)}
             showNews={showNews}
             onShowNewsChange={setShowNews}
+            searchEngine={searchEngine}
+            onSearchEngineChange={(id: SearchEngineId) => {
+              setSearchEngine(id)
+              writeSearchEngine(id)
+            }}
             clockHidden={clockHidden}
             onClockHiddenChange={(hidden: boolean) => {
               setClockHidden(hidden)

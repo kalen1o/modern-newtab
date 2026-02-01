@@ -1,8 +1,15 @@
 import type { ClockFormat } from "../components/Clock"
-import { BACKGROUND_KEY, BACKGROUNDS, type BackgroundConfig } from "../constants"
+import {
+  BACKGROUND_KEY,
+  BACKGROUNDS,
+  type BackgroundConfig,
+  SEARCH_ENGINES,
+  type SearchEngineId,
+} from "../constants"
 
 export const CLOCK_HIDDEN_KEY = "newtab-clock-hidden"
 export const CLOCK_FORMAT_KEY = "newtab-clock-format"
+export const SEARCH_ENGINE_KEY = "newtab-search-engine"
 
 export function readClockHidden(): boolean {
     try {
@@ -56,6 +63,24 @@ export function readBackground(): BackgroundConfig {
 export function writeBackground(config: BackgroundConfig): void {
     try {
         localStorage.setItem(BACKGROUND_KEY, JSON.stringify(config))
+    } catch {
+        // ignore
+    }
+}
+
+export function readSearchEngine(): SearchEngineId {
+    try {
+        const v = localStorage.getItem(SEARCH_ENGINE_KEY)
+        if (v && SEARCH_ENGINES.some((e) => e.id === v)) return v as SearchEngineId
+    } catch {
+        // ignore
+    }
+    return "google"
+}
+
+export function writeSearchEngine(id: SearchEngineId): void {
+    try {
+        localStorage.setItem(SEARCH_ENGINE_KEY, id)
     } catch {
         // ignore
     }

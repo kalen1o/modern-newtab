@@ -7,13 +7,18 @@ interface AutocompleteInputProps {
   onSearch?: (query: string) => void
   onFocusChange?: (isFocused: boolean) => void
   isRegisteredUser?: boolean
+  /** URL template for search redirect; {q} is replaced with the query. Defaults to Google. */
+  searchUrlTemplate?: string
 }
+
+const DEFAULT_SEARCH_URL = "https://www.google.com/search?q={q}"
 
 function AutocompleteInput({
   logoSrc = "/husky.png",
   onSearch,
   onFocusChange,
   isRegisteredUser = false,
+  searchUrlTemplate = DEFAULT_SEARCH_URL,
 }: AutocompleteInputProps) {
   const [query, setQuery] = useState("")
   const [suggestions, setSuggestions] = useState<string[]>([])
@@ -109,8 +114,8 @@ function AutocompleteInput({
     if (onSearch) {
       onSearch(finalQuery)
     } else {
-      // Default: redirect to Google
-      window.location.href = `https://www.google.com/search?q=${encodeURIComponent(finalQuery)}`
+      const url = searchUrlTemplate.replace("{q}", encodeURIComponent(finalQuery))
+      window.location.href = url
     }
   }
 

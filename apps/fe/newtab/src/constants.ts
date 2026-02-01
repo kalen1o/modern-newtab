@@ -50,3 +50,13 @@ export type BackgroundConfig =
   | { type: "image"; filename: string }
   | { type: "gradient"; direction: string; color1: string; color2: string }
   | { type: "solid"; color: string }
+
+/** Search engines for autocomplete bar. {q} is replaced with the query. */
+export const SEARCH_ENGINES = [
+  { id: "google", label: "Google", urlTemplate: "https://www.google.com/search?q={q}" },
+  { id: "brave", label: "Brave", urlTemplate: "https://search.brave.com/search?q={q}" },
+  { id: "duckduckgo", label: "DuckDuckGo", urlTemplate: "https://duckduckgo.com/?q={q}" },
+  { id: "bing", label: "Bing", urlTemplate: "https://www.bing.com/search?q={q}" },
+] as const
+
+export type SearchEngineId = (typeof SEARCH_ENGINES)[number]["id"]

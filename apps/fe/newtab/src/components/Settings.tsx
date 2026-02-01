@@ -1,12 +1,14 @@
 import { useCallback, useEffect } from "react"
 import { motion } from "framer-motion"
-import { Clock as ClockIcon, Image as ImageIcon, Info, LogIn, LogOut, Newspaper, X } from "lucide-react"
+import { Clock as ClockIcon, Image as ImageIcon, Info, LogIn, LogOut, Newspaper, Search, X } from "lucide-react"
 import {
   BACKGROUNDS,
   type BackgroundConfig,
   type BackgroundType,
   GRADIENT_DIRECTIONS,
   GRADIENT_PRESETS,
+  SEARCH_ENGINES,
+  type SearchEngineId,
   SOLID_PRESETS,
 } from "../constants"
 import { useAuth } from "../hooks/useAuth"
@@ -17,6 +19,8 @@ type SettingsProps = {
   onClose: () => void
   showNews: boolean
   onShowNewsChange: (show: boolean) => void
+  searchEngine: SearchEngineId
+  onSearchEngineChange: (id: SearchEngineId) => void
   clockHidden: boolean
   onClockHiddenChange: (hidden: boolean) => void
   clockFormat: ClockFormat
@@ -32,6 +36,8 @@ export function Settings({
   onClose,
   showNews,
   onShowNewsChange,
+  searchEngine,
+  onSearchEngineChange,
   clockHidden,
   onClockHiddenChange,
   clockFormat,
@@ -267,6 +273,32 @@ export function Settings({
                     />
                   </button>
                 </label>
+              </div>
+            </section>
+            {/* Search */}
+            <section className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Search className="size-4 text-slate-600 dark:text-slate-400" />
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Search
+                </span>
+              </div>
+              <div className="flex items-center justify-between gap-4">
+                <span className="text-sm text-slate-700 dark:text-slate-300 shrink-0">
+                  Search engine
+                </span>
+                <select
+                  value={searchEngine}
+                  onChange={(e) => onSearchEngineChange(e.target.value as SearchEngineId)}
+                  className="min-w-0 flex-1 max-w-[140px] px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  aria-label="Search engine for autocomplete"
+                >
+                  {SEARCH_ENGINES.map((e) => (
+                    <option key={e.id} value={e.id}>
+                      {e.label}
+                    </option>
+                  ))}
+                </select>
               </div>
             </section>
             {/* Clock */}

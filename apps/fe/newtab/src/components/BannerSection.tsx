@@ -1,5 +1,7 @@
 import { lazy, Suspense } from "react"
 import { motion } from "framer-motion"
+import type { SearchEngineId } from "../constants"
+import { SEARCH_ENGINES } from "../constants"
 import { ErrorBoundary } from "./ErrorBoundary"
 
 // Lazy load microfrontend with proper error handling
@@ -9,9 +11,18 @@ interface BannerSectionProps {
   isInputFocused: boolean
   onFocusChange: (focused: boolean) => void
   isRegisteredUser: boolean
+  searchEngine: SearchEngineId
 }
 
-export function BannerSection({ isInputFocused, onFocusChange, isRegisteredUser }: BannerSectionProps) {
+export function BannerSection({
+  isInputFocused,
+  onFocusChange,
+  isRegisteredUser,
+  searchEngine,
+}: BannerSectionProps) {
+  const searchUrlTemplate =
+    SEARCH_ENGINES.find((e) => e.id === searchEngine)?.urlTemplate ??
+    SEARCH_ENGINES[0].urlTemplate
   return (
     <section
       className={`flex-1 flex flex-col px-8 transition-all items-center ${isInputFocused ? "absolute inset-0 z-[10] p-0 justify-start" : ""}`}
@@ -53,6 +64,7 @@ export function BannerSection({ isInputFocused, onFocusChange, isRegisteredUser 
             <AutocompleteInput
               onFocusChange={onFocusChange}
               isRegisteredUser={isRegisteredUser}
+              searchUrlTemplate={searchUrlTemplate}
             />
           </Suspense>
         </ErrorBoundary>
