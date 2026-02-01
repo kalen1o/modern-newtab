@@ -170,7 +170,7 @@ function App() {
       </div>
 
       <AnimatePresence>
-        {showNews && !isInputFocused && (
+        {showNews && (
           <motion.section
             ref={newsSectionRef}
             initial={{ opacity: 1 }}
