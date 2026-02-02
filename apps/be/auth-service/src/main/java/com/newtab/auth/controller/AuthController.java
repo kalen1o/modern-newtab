@@ -1,9 +1,19 @@
 package com.newtab.auth.controller;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.newtab.auth.dto.AuthResponse;
 import com.newtab.auth.dto.LoginRequest;
 import com.newtab.auth.dto.RegisterRequest;
+import com.newtab.auth.dto.ValidateResponse;
 import com.newtab.auth.service.AuthService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -13,8 +23,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -67,22 +75,22 @@ public class AuthController {
     public ResponseEntity<AuthResponse> refresh(
             @Parameter(description = "Bearer token", required = true) @RequestHeader("Authorization") String authHeader) {
         String token = authHeader.replace("Bearer ", "");
-        String email = authService.validateToken(token);
-        AuthResponse response = authService.refreshToken(email);
+        ValidateResponse validated = authService.validateToken(token);
+        AuthResponse response = authService.refreshToken(validated.getEmail(), validated.getUserType());
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/validate")
-    @Operation(summary = "Validate token", description = "Validates JWT token and returns user email")
+    @Operation(summary = "Validate token", description = "Validates JWT token and returns user email and userType")
     @SecurityRequirement(name = "bearerAuth")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Token is valid", content = @Content(schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "200", description = "Token is valid", content = @Content(schema = @Schema(implementation = ValidateResponse.class))),
             @ApiResponse(responseCode = "401", description = "Invalid or expired token")
     })
-    public ResponseEntity<String> validate(
+    public ResponseEntity<ValidateResponse> validate(
             @Parameter(description = "Bearer token", required = true) @RequestHeader("Authorization") String authHeader) {
         String token = authHeader.replace("Bearer ", "");
-        String email = authService.validateToken(token);
-        return ResponseEntity.ok(email);
+        ValidateResponse response = authService.validateToken(token);
+        return ResponseEntity.ok(response);
     }
 }

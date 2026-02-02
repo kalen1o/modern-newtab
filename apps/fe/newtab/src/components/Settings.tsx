@@ -26,6 +26,7 @@ import type { ClockFormat } from "./Clock"
 type SettingsProps = {
   isOpen: boolean
   onClose: () => void
+  onSignInClick?: () => void
   showNews: boolean
   onShowNewsChange: (show: boolean) => void
   searchEngine: SearchEngineId
@@ -43,6 +44,7 @@ export type { SettingsProps }
 export function Settings({
   isOpen,
   onClose,
+  onSignInClick,
   showNews,
   onShowNewsChange,
   searchEngine,
@@ -54,7 +56,12 @@ export function Settings({
   backgroundConfig,
   onBackgroundConfigChange,
 }: SettingsProps) {
-  const { isRegistered, logout } = useAuth()
+  const { isRegistered, email, logout } = useAuth()
+
+  const handleSignInClick = () => {
+    onClose()
+    onSignInClick?.()
+  }
 
   const handleClose = useCallback(() => {
     ;(document.activeElement as HTMLElement | null)?.blur?.()
@@ -364,7 +371,7 @@ export function Settings({
                 <span className="text-sm text-slate-600 dark:text-slate-400 truncate">
                   {isRegistered ? (
                     <span className="text-green-600 dark:text-green-400 font-medium">
-                      Logged in
+                      Logged in as {email}
                     </span>
                   ) : (
                     <span className="text-amber-600 dark:text-amber-400 font-medium">
@@ -372,12 +379,18 @@ export function Settings({
                     </span>
                   )}
                 </span>
-                <span
-                  className="shrink-0 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 cursor-help"
-                  title="Logged in user will have history and can sync settings and preference all over other devices"
-                >
-                  <Info className="size-4" />
-                </span>
+                {!isRegistered && (
+                  <div className="relative shrink-0 group">
+                    <span className="text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 cursor-help">
+                      <Info className="size-4" />
+                    </span>
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 w-64 text-xs text-black bg-white rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity duration-200 z-10 pointer-events-none">
+                      Logged in user will have history saving feature and can sync newtabs between
+                      all devices
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-white"></div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
             {isRegistered ? (
@@ -392,9 +405,7 @@ export function Settings({
             ) : (
               <button
                 type="button"
-                onClick={() => {
-                  alert("Login functionality coming soon!")
-                }}
+                onClick={handleSignInClick}
                 className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-100/80 text-blue-700 border border-blue-300/80 rounded-lg text-sm transition-colors hover:bg-blue-200/80"
               >
                 <LogIn className="size-4" />

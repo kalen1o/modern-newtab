@@ -1,5 +1,6 @@
 import { AnimatePresence } from "framer-motion"
 import { useEffect, useRef, useState } from "react"
+import { AuthModal } from "./components/AuthModal"
 import { BannerSection } from "./components/BannerSection"
 import type { ClockFormat } from "./components/Clock"
 import { Header } from "./components/Header"
@@ -29,6 +30,7 @@ function App() {
   const [clockFormat, setClockFormat] = useState<ClockFormat>(readClockFormat)
   const [backgroundConfig, setBackgroundConfig] = useState<BackgroundConfig>(readBackground)
   const [isInputFocused, setIsInputFocused] = useState(false)
+  const [authModalOpen, setAuthModalOpen] = useState(false)
   const initialScreenRef = useRef<HTMLDivElement | null>(null)
   const { isAuthenticated, isRegistered, loading: authLoading, getGuestToken, token } = useAuth()
 
@@ -114,11 +116,16 @@ function App() {
       <NewsSection showNews={showNews} token={token} />
 
       <AnimatePresence>
+        {authModalOpen && <AuthModal key="auth-modal" onClose={() => setAuthModalOpen(false)} />}
+      </AnimatePresence>
+
+      <AnimatePresence>
         {settingsOpen && (
           <Settings
             key="settings"
             isOpen={settingsOpen}
             onClose={() => setSettingsOpen(false)}
+            onSignInClick={() => setAuthModalOpen(true)}
             showNews={showNews}
             onShowNewsChange={setShowNews}
             searchEngine={searchEngine}

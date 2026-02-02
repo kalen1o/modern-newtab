@@ -1,14 +1,16 @@
 package com.newtab.auth.service;
 
-import com.newtab.auth.dto.AuthResponse;
-import com.newtab.auth.dto.LoginRequest;
-import com.newtab.auth.dto.RegisterRequest;
-import com.newtab.auth.entity.User;
-import com.newtab.auth.repository.UserRepository;
-import com.newtab.auth.security.JwtProvider;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import com.newtab.auth.dto.AuthResponse;
+import com.newtab.auth.dto.LoginRequest;
+import com.newtab.auth.dto.RegisterRequest;
+import com.newtab.auth.dto.ValidateResponse;
+import com.newtab.auth.entity.User;
+import com.newtab.auth.repository.UserRepository;
+import com.newtab.auth.security.JwtProvider;
 
 @Service
 public class AuthService {
@@ -50,9 +52,10 @@ public class AuthService {
         return new AuthResponse(token, token, "registered");
     }
 
-    public AuthResponse refreshToken(String email) {
-        String token = jwtProvider.generateToken(email, "registered");
-        return new AuthResponse(token, token, "registered");
+    public AuthResponse refreshToken(String email, String userType) {
+        String type = (userType != null && !userType.isEmpty()) ? userType : "guest";
+        String token = jwtProvider.generateToken(email, type);
+        return new AuthResponse(token, token, type);
     }
 
     public AuthResponse guestToken() {
@@ -61,10 +64,12 @@ public class AuthService {
         return new AuthResponse(token, token, "guest");
     }
 
-    public String validateToken(String token) {
+    public ValidateResponse validateToken(String token) {
         if (!jwtProvider.validateToken(token)) {
             throw new RuntimeException("Invalid token");
         }
-        return jwtProvider.getEmailFromToken(token);
+        String email = jwtProvider.getEmailFromToken(token);
+        String userType = jwtProvider.getUserTypeFromToken(token);
+        return new ValidateResponse(email, userType);
     }
 }
