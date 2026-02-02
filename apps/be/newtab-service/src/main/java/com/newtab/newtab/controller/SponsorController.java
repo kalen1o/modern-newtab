@@ -1,8 +1,21 @@
 package com.newtab.newtab.controller;
 
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.newtab.newtab.dto.SponsorRequest;
 import com.newtab.newtab.entity.Sponsor;
 import com.newtab.newtab.service.SponsorService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -11,9 +24,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/sponsors")
@@ -64,7 +74,7 @@ public class SponsorController {
             @ApiResponse(responseCode = "404", description = "Sponsor not found")
     })
     public ResponseEntity<Sponsor> updateSponsor(
-            @Parameter(description = "Sponsor ID", required = true) @PathVariable Long id,
+            @Parameter(description = "Sponsor ID", required = true) @PathVariable java.util.UUID id,
             @Valid @RequestBody SponsorRequest request) {
         Sponsor sponsor = sponsorService.updateSponsor(id, request);
         return ResponseEntity.ok(sponsor);
@@ -77,7 +87,7 @@ public class SponsorController {
             @ApiResponse(responseCode = "404", description = "Sponsor not found")
     })
     public ResponseEntity<Void> deleteSponsor(
-            @Parameter(description = "Sponsor ID", required = true) @PathVariable Long id) {
+            @Parameter(description = "Sponsor ID", required = true) @PathVariable java.util.UUID id) {
         sponsorService.deleteSponsor(id);
         return ResponseEntity.noContent().build();
     }

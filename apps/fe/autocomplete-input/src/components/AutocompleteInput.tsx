@@ -107,7 +107,6 @@ function AutocompleteInput({
     if (!finalQuery.trim()) return
 
     saveToHistory(finalQuery)
-    setQuery("")
     setIsDropdownClosing(true)
     setTimeout(() => setShowDropdown(false), 200)
 

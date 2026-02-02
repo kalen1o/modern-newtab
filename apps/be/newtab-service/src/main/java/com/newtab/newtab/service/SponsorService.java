@@ -43,7 +43,7 @@ public class SponsorService {
         return sponsorRepository.findByIsActiveTrue();
     }
 
-    public Sponsor updateSponsor(Long id, SponsorRequest request) {
+    public Sponsor updateSponsor(java.util.UUID id, SponsorRequest request) {
         Sponsor sponsor = sponsorRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Sponsor not found"));
 
@@ -58,7 +58,7 @@ public class SponsorService {
         return sponsorRepository.save(sponsor);
     }
 
-    public void deleteSponsor(Long id) {
+    public void deleteSponsor(java.util.UUID id) {
         sponsorRepository.deleteById(id);
     }
 }

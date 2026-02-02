@@ -1,9 +1,24 @@
 package com.newtab.newtab.controller;
 
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.newtab.newtab.dto.SearchHistoryRequest;
 import com.newtab.newtab.entity.SearchHistory;
 import com.newtab.newtab.security.UserPrincipal;
 import com.newtab.newtab.service.SearchHistoryService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -12,10 +27,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/history")
@@ -68,11 +79,12 @@ public class SearchHistoryController {
             @ApiResponse(responseCode = "200", description = "Search history retrieved", content = @Content(schema = @Schema(implementation = SearchHistory.class))),
             @ApiResponse(responseCode = "403", description = "Guest users cannot access search history")
     })
-    public ResponseEntity<List<SearchHistory>> getUserHistory(Authentication authentication) {
+    public ResponseEntity<Map<String, List<SearchHistory>>> getUserHistory(Authentication authentication) {
         requireRegisteredUser(authentication);
         UserPrincipal userPrincipal = getUserPrincipal(authentication);
         List<SearchHistory> history = searchHistoryService.getUserHistory(userPrincipal.getEmail());
-        return ResponseEntity.ok(history);
+        Map<String, List<SearchHistory>> response = Map.of("items", history);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
@@ -83,7 +95,7 @@ public class SearchHistoryController {
             @ApiResponse(responseCode = "403", description = "Guest users cannot delete search history")
     })
     public ResponseEntity<Void> deleteHistory(
-            @Parameter(description = "History entry ID", required = true) @PathVariable Long id,
+            @Parameter(description = "History entry ID", required = true) @PathVariable UUID id,
             Authentication authentication) {
         requireRegisteredUser(authentication);
         searchHistoryService.deleteHistory(id);

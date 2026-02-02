@@ -1,9 +1,10 @@
 package com.newtab.newtab.service;
 
+import org.springframework.stereotype.Service;
+
 import com.newtab.newtab.dto.UserPreferencesRequest;
 import com.newtab.newtab.entity.UserPreferences;
 import com.newtab.newtab.repository.UserPreferencesRepository;
-import org.springframework.stereotype.Service;
 
 @Service
 public class UserPreferencesService {
@@ -14,12 +15,12 @@ public class UserPreferencesService {
         this.userPreferencesRepository = userPreferencesRepository;
     }
 
-    public UserPreferences getPreferences(Integer userId) {
+    public UserPreferences getPreferences(java.util.UUID userId) {
         return userPreferencesRepository.findByUserId(userId)
                 .orElseGet(() -> createDefaultPreferences(userId));
     }
 
-    private UserPreferences createDefaultPreferences(Integer userId) {
+    private UserPreferences createDefaultPreferences(java.util.UUID userId) {
         UserPreferences preferences = new UserPreferences();
         preferences.setUserId(userId);
         return userPreferencesRepository.save(preferences);

@@ -19,12 +19,6 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
-  flyway:
-    enabled: true
-    baseline-on-migrate: true
-    locations: classpath:db/migration
-    table: auth_schema_history
-
 jwt:
   secret: ${JWT_SECRET:your-super-secret-key-change-this-in-production-min-256-bits}
   expiration: 86400000  # 24 hours in milliseconds

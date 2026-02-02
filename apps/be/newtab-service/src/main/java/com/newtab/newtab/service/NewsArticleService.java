@@ -1,13 +1,14 @@
 package com.newtab.newtab.service;
 
-import com.newtab.newtab.dto.PageResponse;
-import com.newtab.newtab.entity.NewsArticle;
-import com.newtab.newtab.repository.NewsArticleRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
+import com.newtab.newtab.dto.PageResponse;
+import com.newtab.newtab.entity.NewsArticle;
+import com.newtab.newtab.repository.NewsArticleRepository;
 
 @Service
 public class NewsArticleService {
@@ -34,7 +35,7 @@ public class NewsArticleService {
         return newsArticleRepository.save(article);
     }
 
-    public void deleteArticle(Long id) {
+    public void deleteArticle(java.util.UUID id) {
         newsArticleRepository.deleteById(id);
     }
 }

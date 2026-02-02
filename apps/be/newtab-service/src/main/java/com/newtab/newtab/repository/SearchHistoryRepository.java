@@ -1,11 +1,14 @@
 package com.newtab.newtab.repository;
 
-import com.newtab.newtab.entity.SearchHistory;
+import java.util.List;
+import java.util.UUID;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import java.util.List;
+
+import com.newtab.newtab.entity.SearchHistory;
 
 @Repository
-public interface SearchHistoryRepository extends JpaRepository<SearchHistory, Long> {
-    List<SearchHistory> findByUserEmailOrderByCreatedAtDesc(String userEmail);
+public interface SearchHistoryRepository extends JpaRepository<SearchHistory, UUID> {
+    List<SearchHistory> findByUserIdOrderByCreatedAtDesc(UUID userId);
 }

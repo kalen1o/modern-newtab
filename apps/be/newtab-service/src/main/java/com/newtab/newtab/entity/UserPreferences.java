@@ -1,32 +1,42 @@
 package com.newtab.newtab.entity;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.UUID;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "user_preferences")
 public class UserPreferences {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", updatable = false, nullable = false)
+    private UUID id;
 
     @Column(name = "user_id", unique = true)
-    private Integer userId;
+    private UUID userId;
 
     @Column
-    private String theme;
+    private String theme = "light";
 
     @Column(name = "background_type")
-    private String backgroundType;
+    private String backgroundType = "image";
 
     @Column(name = "show_news")
-    private Boolean showNews;
+    private Boolean showNews = true;
 
     @Column(name = "show_sponsors")
-    private Boolean showSponsors;
+    private Boolean showSponsors = true;
 
     @Column(name = "show_history")
-    private Boolean showHistory;
+    private Boolean showHistory = true;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -38,7 +48,6 @@ public class UserPreferences {
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
-        setDefaults();
     }
 
     @PreUpdate
@@ -46,32 +55,19 @@ public class UserPreferences {
         updatedAt = LocalDateTime.now();
     }
 
-    private void setDefaults() {
-        if (theme == null)
-            theme = "light";
-        if (backgroundType == null)
-            backgroundType = "image";
-        if (showNews == null)
-            showNews = true;
-        if (showSponsors == null)
-            showSponsors = true;
-        if (showHistory == null)
-            showHistory = true;
-    }
-
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
-    public Integer getUserId() {
+    public UUID getUserId() {
         return userId;
     }
 
-    public void setUserId(Integer userId) {
+    public void setUserId(UUID userId) {
         this.userId = userId;
     }
 
@@ -119,7 +115,15 @@ public class UserPreferences {
         return createdAt;
     }
 
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

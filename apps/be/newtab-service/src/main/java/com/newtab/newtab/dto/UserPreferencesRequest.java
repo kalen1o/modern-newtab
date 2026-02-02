@@ -1,10 +1,12 @@
 package com.newtab.newtab.dto;
 
+import java.util.UUID;
+
 import jakarta.validation.constraints.NotNull;
 
 public class UserPreferencesRequest {
     @NotNull(message = "User ID is required")
-    private Integer userId;
+    private UUID userId;
 
     private String theme;
     private String backgroundType;
@@ -12,11 +14,11 @@ public class UserPreferencesRequest {
     private Boolean showSponsors;
     private Boolean showHistory;
 
-    public Integer getUserId() {
+    public UUID getUserId() {
         return userId;
     }
 
-    public void setUserId(Integer userId) {
+    public void setUserId(UUID userId) {
         this.userId = userId;
     }
 

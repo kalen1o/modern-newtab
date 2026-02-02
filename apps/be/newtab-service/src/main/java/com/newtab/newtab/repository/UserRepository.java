@@ -1,14 +1,14 @@
 package com.newtab.newtab.repository;
 
-import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.newtab.newtab.entity.Sponsor;
+import com.newtab.newtab.entity.User;
 
 @Repository
-public interface SponsorRepository extends JpaRepository<Sponsor, UUID> {
-    List<Sponsor> findByIsActiveTrue();
+public interface UserRepository extends JpaRepository<User, UUID> {
+    Optional<User> findByEmail(String email);
 }
