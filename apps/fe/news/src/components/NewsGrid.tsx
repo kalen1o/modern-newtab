@@ -98,11 +98,15 @@ function NewsGrid({ token }: NewsGridProps) {
 
   const articles = pageData?.content ?? []
 
-  // Re-run when article list changes so we observe the new card DOM nodes.
-  // biome-ignore lint/correctness/useExhaustiveDependencies(pageData?.content): intentional re-run when article list changes
+  // Re-run when article list or view mode changes so we observe the new card DOM nodes.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: newsView required so observer re-attaches after layout change
   useEffect(() => {
     const elements = cardRefs.current.filter(Boolean) as HTMLAnchorElement[]
-    if (elements.length === 0) return
+    if (elements.length === 0) {
+      visibleCards50.current.clear()
+      setIsGridVisible50Percent(false)
+      return
+    }
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -128,7 +132,7 @@ function NewsGrid({ token }: NewsGridProps) {
       observer.disconnect()
       visibleCards50.current.clear()
     }
-  }, [pageData?.content])
+  }, [pageData?.content, newsView])
 
   const handlePageChange = (newPage: number) => {
     if (newPage >= 0 && (!pageData || newPage < pageData.totalPages)) {
