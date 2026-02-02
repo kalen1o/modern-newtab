@@ -284,6 +284,35 @@ Code formatting and linting with Biome toolchain.
 
 ---
 
+### 11. [Authentication Flow](./11-authentication-flow.md)
+
+Complete documentation of the authentication system architecture and flows.
+
+**Topics:**
+|- User registration flow
+|- User login flow
+|- Guest token flow
+|- Token validation on app load
+|- Protected API request flow
+|- Token refresh flow
+|- Logout flow
+|- JWT token structure
+|- Security configuration
+|- Error handling
+|- Storage details
+
+**Architecture Components:**
+|- Frontend: AuthService, useAuth hook, API client
+|- Backend: Auth service, NewTab service, JWT providers
+|- Infrastructure: Nginx routing, CORS handling
+
+**Authentication Paths:**
+|- Registration: Creates user account with email/password
+|- Login: Authenticates existing users
+|- Guest: Provides temporary access without registration
+
+---
+
 ## Quick Reference
 
 ### Application Ports
