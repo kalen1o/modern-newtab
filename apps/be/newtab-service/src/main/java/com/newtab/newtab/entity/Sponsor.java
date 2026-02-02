@@ -1,7 +1,17 @@
 package com.newtab.newtab.entity;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "sponsors")
@@ -13,8 +23,9 @@ public class Sponsor {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
-    private String type;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "advertisement_type", nullable = false)
+    private AdvertisementType advertisementType;
 
     @Column(name = "media_url", nullable = false)
     private String mediaUrl;
@@ -24,6 +35,10 @@ public class Sponsor {
 
     @Column(name = "is_active")
     private Boolean isActive;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "position_type", nullable = false)
+    private SponsorPositionType positionType;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -37,6 +52,9 @@ public class Sponsor {
         updatedAt = LocalDateTime.now();
         if (isActive == null) {
             isActive = true;
+        }
+        if (positionType == null) {
+            positionType = SponsorPositionType.WINDOW;
         }
     }
 
@@ -61,12 +79,20 @@ public class Sponsor {
         this.name = name;
     }
 
-    public String getType() {
-        return type;
+    public AdvertisementType getAdvertisementType() {
+        return advertisementType;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setAdvertisementType(AdvertisementType advertisementType) {
+        this.advertisementType = advertisementType;
+    }
+
+    public SponsorPositionType getPositionType() {
+        return positionType;
+    }
+
+    public void setPositionType(SponsorPositionType positionType) {
+        this.positionType = positionType;
     }
 
     public String getMediaUrl() {

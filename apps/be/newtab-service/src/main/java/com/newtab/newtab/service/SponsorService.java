@@ -1,11 +1,13 @@
 package com.newtab.newtab.service;
 
+import java.util.List;
+import java.util.Random;
+
+import org.springframework.stereotype.Service;
+
 import com.newtab.newtab.dto.SponsorRequest;
 import com.newtab.newtab.entity.Sponsor;
 import com.newtab.newtab.repository.SponsorRepository;
-import org.springframework.stereotype.Service;
-import java.util.List;
-import java.util.Random;
 
 @Service
 public class SponsorService {
@@ -20,7 +22,9 @@ public class SponsorService {
     public Sponsor createSponsor(SponsorRequest request) {
         Sponsor sponsor = new Sponsor();
         sponsor.setName(request.getName());
-        sponsor.setType(request.getType());
+        sponsor.setAdvertisementType(request.getAdvertisementType());
+        sponsor.setPositionType(request.getPositionType() != null ? request.getPositionType()
+                : com.newtab.newtab.entity.SponsorPositionType.WINDOW);
         sponsor.setMediaUrl(request.getMediaUrl());
         sponsor.setLinkUrl(request.getLinkUrl());
         sponsor.setIsActive(request.getIsActive());
@@ -44,7 +48,9 @@ public class SponsorService {
                 .orElseThrow(() -> new RuntimeException("Sponsor not found"));
 
         sponsor.setName(request.getName());
-        sponsor.setType(request.getType());
+        sponsor.setAdvertisementType(request.getAdvertisementType());
+        sponsor.setPositionType(request.getPositionType() != null ? request.getPositionType()
+                : com.newtab.newtab.entity.SponsorPositionType.WINDOW);
         sponsor.setMediaUrl(request.getMediaUrl());
         sponsor.setLinkUrl(request.getLinkUrl());
         sponsor.setIsActive(request.getIsActive());
