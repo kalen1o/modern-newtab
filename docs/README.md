@@ -1,5 +1,11 @@
 # NewTab Application Documentation
 
+## Preview
+
+<video src="../assets/preview.mov" controls width="640"></video>
+
+---
+
 Welcome to NewTab application documentation. This directory contains comprehensive guides for implementing a hybrid monorepo that combines:
 
 - **Backend Monorepo**: Java Spring Boot microservices with shared infrastructure
@@ -353,6 +359,8 @@ NEWTAB_SERVICE_PORT=8082
 
 ```
 /Users/kalen_1o/learning/microservice/
+├── assets/
+│   └── preview.mov              # Application preview video
 ├── apps/
 │   ├── be/
 │   │   ├── auth-service/          # Spring Boot auth

@@ -1,7 +1,7 @@
-import { lazy, Suspense, useState, useCallback } from "react"
 import { AnimatePresence, motion } from "framer-motion"
+import { lazy, Suspense, useCallback, useState } from "react"
+import { type NewsViewMode, readNewsView, writeNewsView } from "../utils/storage"
 import { ErrorBoundary } from "./ErrorBoundary"
-import { readNewsView, writeNewsView, type NewsViewMode } from "../utils/storage"
 
 // Lazy load microfrontend with proper error handling
 const NewsGrid = lazy(() => import("news/News"))

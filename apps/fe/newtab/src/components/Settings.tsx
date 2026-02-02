@@ -1,6 +1,15 @@
-import { useCallback, useEffect } from "react"
 import { motion } from "framer-motion"
-import { Clock as ClockIcon, Image as ImageIcon, Info, LogIn, LogOut, Newspaper, Search, X } from "lucide-react"
+import {
+  Clock as ClockIcon,
+  Image as ImageIcon,
+  Info,
+  LogIn,
+  LogOut,
+  Newspaper,
+  Search,
+  X,
+} from "lucide-react"
+import { useCallback, useEffect } from "react"
 import {
   BACKGROUNDS,
   type BackgroundConfig,

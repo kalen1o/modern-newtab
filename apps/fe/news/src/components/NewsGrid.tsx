@@ -1,9 +1,10 @@
 import { formatArticleDate } from "@libs/shared"
+import { AnimatePresence, motion } from "framer-motion"
+import { LayoutGrid, LayoutList, RefreshCw } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
-import { RefreshCw, LayoutGrid, LayoutList } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
 
 export type NewsViewMode = "list" | "featured"
+
 import { newsApi } from "../api/news"
 import type { NewsArticle, PageResponse } from "../types"
 

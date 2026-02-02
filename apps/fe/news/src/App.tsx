@@ -1,6 +1,6 @@
 import { useState } from "react"
-import NewsGrid from "./components/NewsGrid"
 import type { NewsViewMode } from "./components/NewsGrid"
+import NewsGrid from "./components/NewsGrid"
 
 const NEWS_VIEW_KEY = "news-view"
 

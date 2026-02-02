@@ -1,5 +1,5 @@
-import { lazy, Suspense } from "react"
 import { motion } from "framer-motion"
+import { lazy, Suspense } from "react"
 import type { SearchEngineId } from "../constants"
 import { SEARCH_ENGINES } from "../constants"
 import { ErrorBoundary } from "./ErrorBoundary"

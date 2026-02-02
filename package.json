@@ -1,42 +1,42 @@
 {
-    "name": "newtab-monorepo",
-    "version": "1.0.0",
-    "private": true,
-    "scripts": {
-        "dev": "nx run-many -t serve -p newtab autocomplete-input news",
-        "dev:shell": "nx run newtab:serve",
-        "dev:autocomplete": "nx run autocomplete-input:serve",
-        "dev:news": "nx run news:serve",
-        "dev:mfe": "pnpm dev:preview-remotes & pnpm dev:shell",
-        "dev:preview-remotes": "nx run-many -t preview -p autocomplete-input news",
-        "preview:autocomplete": "nx run autocomplete-input:preview",
-        "preview:news": "nx run news:preview",
-        "build": "nx run-many -t build -p newtab autocomplete-input news auth-service newtab-service",
-        "build:fe": "nx run-many -t build -p newtab autocomplete-input news",
-        "build:be": "nx run-many -t build -p auth-service newtab-service",
-        "build:shared": "nx run shared:build",
-        "test": "nx run-many -t test --all",
-        "test:fe": "nx run-many -t test -p newtab autocomplete-input news",
-        "test:be": "nx run-many -t test -p auth-service newtab-service",
-        "lint": "biome check .",
-        "lint:fix": "biome check --write .",
-        "format": "biome format --write .",
-        "format:check": "biome format .",
-        "graph": "nx graph",
-        "affected": "nx affected -t build",
-        "nx": "nx"
-    },
-    "devDependencies": {
-        "@biomejs/biome": "^2.3.13",
-        "@nx/js": "^22.4.3",
-        "@nx/react": "^22.4.3",
-        "@nx/vite": "^22.4.3",
-        "@nx/workspace": "^22.4.3",
-        "nx": "^22.4.3",
-        "typescript": "^5.9.3"
-    },
-    "engines": {
-        "node": ">=18.0.0",
-        "npm": ">=9.0.0"
-    }
+  "name": "newtab-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "nx run-many -t serve -p newtab autocomplete-input news",
+    "dev:shell": "nx run newtab:serve",
+    "dev:autocomplete": "nx run autocomplete-input:serve",
+    "dev:news": "nx run news:serve",
+    "dev:mfe": "pnpm dev:preview-remotes & pnpm dev:shell",
+    "dev:preview-remotes": "nx run-many -t preview -p autocomplete-input news",
+    "preview:autocomplete": "nx run autocomplete-input:preview",
+    "preview:news": "nx run news:preview",
+    "build": "nx run-many -t build -p newtab autocomplete-input news auth-service newtab-service",
+    "build:fe": "nx run-many -t build -p newtab autocomplete-input news",
+    "build:be": "nx run-many -t build -p auth-service newtab-service",
+    "build:shared": "nx run shared:build",
+    "test": "nx run-many -t test --all",
+    "test:fe": "nx run-many -t test -p newtab autocomplete-input news",
+    "test:be": "nx run-many -t test -p auth-service newtab-service",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
+    "graph": "nx graph",
+    "affected": "nx affected -t build",
+    "nx": "nx"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.3.13",
+    "@nx/js": "^22.4.3",
+    "@nx/react": "^22.4.3",
+    "@nx/vite": "^22.4.3",
+    "@nx/workspace": "^22.4.3",
+    "nx": "^22.4.3",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
 }

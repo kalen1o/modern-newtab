@@ -5,9 +5,8 @@ import type { ClockFormat } from "./components/Clock"
 import { Header } from "./components/Header"
 import { NewsSection } from "./components/NewsSection"
 import { Settings } from "./components/Settings"
-import type { BackgroundConfig } from "./constants"
+import type { BackgroundConfig, SearchEngineId } from "./constants"
 import { useAuth } from "./hooks/useAuth"
-import type { SearchEngineId } from "./constants"
 import {
   CLOCK_FORMAT_KEY,
   CLOCK_HIDDEN_KEY,
