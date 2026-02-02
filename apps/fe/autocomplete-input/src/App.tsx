@@ -2,7 +2,7 @@ import AutocompleteInput from "./components/AutocompleteInput"
 
 const App = () => {
   return (
-    <div>
+    <div className="max-w-[400px]">
       <AutocompleteInput />
     </div>
   )

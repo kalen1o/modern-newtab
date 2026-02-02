@@ -1,6 +1,7 @@
-import { lazy, Suspense } from "react"
+import { lazy, Suspense, useState, useCallback } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import { ErrorBoundary } from "./ErrorBoundary"
+import { readNewsView, writeNewsView, type NewsViewMode } from "../utils/storage"
 
 // Lazy load microfrontend with proper error handling
 const NewsGrid = lazy(() => import("news/News"))
@@ -11,6 +12,13 @@ interface NewsSectionProps {
 }
 
 export function NewsSection({ showNews, token }: NewsSectionProps) {
+  const [newsView, setNewsView] = useState<NewsViewMode>(() => readNewsView())
+  console.log("newsView", newsView)
+  const handleNewsViewChange = useCallback((view: NewsViewMode) => {
+    setNewsView(view)
+    writeNewsView(view)
+  }, [])
+
   return (
     <AnimatePresence>
       {showNews && (
@@ -26,7 +34,11 @@ export function NewsSection({ showNews, token }: NewsSectionProps) {
                 <div className="text-white/70 text-lg py-8 text-center">Loading news...</div>
               }
             >
-              <NewsGrid token={token ?? undefined} />
+              <NewsGrid
+                token={token ?? undefined}
+                newsView={newsView}
+                onNewsViewChange={handleNewsViewChange}
+              />
             </Suspense>
           </ErrorBoundary>
         </motion.section>

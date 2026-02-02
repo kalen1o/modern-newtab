@@ -23,6 +23,8 @@ declare module "autocomplete/Autocomplete" {
 declare module "news/News" {
     interface NewsGridProps {
         token?: string
+        newsView?: NewsViewMode
+        onNewsViewChange?: (view: NewsViewMode) => void
     }
     const NewsGrid: React.ComponentType<NewsGridProps>
     export default NewsGrid

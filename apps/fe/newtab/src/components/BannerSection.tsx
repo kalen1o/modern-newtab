@@ -21,8 +21,7 @@ export function BannerSection({
   searchEngine,
 }: BannerSectionProps) {
   const searchUrlTemplate =
-    SEARCH_ENGINES.find((e) => e.id === searchEngine)?.urlTemplate ??
-    SEARCH_ENGINES[0].urlTemplate
+    SEARCH_ENGINES.find((e) => e.id === searchEngine)?.urlTemplate ?? SEARCH_ENGINES[0].urlTemplate
   return (
     <section
       className={`flex-1 flex flex-col px-8 transition-all items-center ${isInputFocused ? "absolute inset-0 z-[10] p-0 justify-start" : ""}`}
@@ -37,10 +36,10 @@ export function BannerSection({
         }}
       />
       <motion.div
-        className="w-full max-w-[600px]"
+        className="w-full max-w-[400px]"
         initial={{
-          width: "600px",
-          maxWidth: "600px",
+          width: "400px",
+          maxWidth: "400px",
           scale: 1,
         }}
         animate={
@@ -50,7 +49,7 @@ export function BannerSection({
                 scale: 1.1,
               }
             : {
-                width: "600px",
+                width: "400px",
                 scale: 1,
               }
         }

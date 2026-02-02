@@ -1,15 +1,19 @@
 import type { ClockFormat } from "../components/Clock"
 import {
-  BACKGROUND_KEY,
-  BACKGROUNDS,
-  type BackgroundConfig,
-  SEARCH_ENGINES,
-  type SearchEngineId,
+    BACKGROUND_KEY,
+    BACKGROUNDS,
+    type BackgroundConfig,
+    SEARCH_ENGINES,
+    type SearchEngineId,
 } from "../constants"
 
 export const CLOCK_HIDDEN_KEY = "newtab-clock-hidden"
 export const CLOCK_FORMAT_KEY = "newtab-clock-format"
 export const SEARCH_ENGINE_KEY = "newtab-search-engine"
+
+export const NEWS_VIEW_KEY = "news-view"
+
+export type NewsViewMode = "list" | "featured"
 
 export function readClockHidden(): boolean {
     try {
@@ -81,6 +85,24 @@ export function readSearchEngine(): SearchEngineId {
 export function writeSearchEngine(id: SearchEngineId): void {
     try {
         localStorage.setItem(SEARCH_ENGINE_KEY, id)
+    } catch {
+        // ignore
+    }
+}
+
+export function readNewsView(): NewsViewMode {
+    try {
+        const v = localStorage.getItem(NEWS_VIEW_KEY)
+        if (v === "list" || v === "featured") return v
+    } catch {
+        // ignore
+    }
+    return "list"
+}
+
+export function writeNewsView(view: NewsViewMode): void {
+    try {
+        localStorage.setItem(NEWS_VIEW_KEY, view)
     } catch {
         // ignore
     }

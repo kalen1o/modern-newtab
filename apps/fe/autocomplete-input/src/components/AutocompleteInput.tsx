@@ -135,7 +135,7 @@ function AutocompleteInput({
   }
 
   return (
-    <div className="relative w-full max-w-[600px]">
+    <div className="relative w-full">
       <div className="flex items-center gap-2 bg-black backdrop-blur-[10px] p-2 rounded-xl border border-white/20">
         <img src={logoSrc} alt="" className="h-8 w-8 shrink-0 rounded-full object-cover" />
         <input

@@ -3,16 +3,17 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { RefreshCw, LayoutGrid, LayoutList } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
-const NEWS_VIEW_KEY = "news-view"
-type NewsViewMode = "list" | "featured"
+export type NewsViewMode = "list" | "featured"
 import { newsApi } from "../api/news"
 import type { NewsArticle, PageResponse } from "../types"
 
 type NewsGridProps = {
   token?: string
+  newsView: NewsViewMode
+  onNewsViewChange: (view: NewsViewMode) => void
 }
 
-function NewsGrid({ token }: NewsGridProps) {
+function NewsGrid({ token, newsView, onNewsViewChange }: NewsGridProps) {
   const [pageData, setPageData] = useState<PageResponse<NewsArticle> | null>(null)
   const [currentPage, setCurrentPage] = useState(0)
   const [pageSize] = useState(20)
@@ -21,18 +22,11 @@ function NewsGrid({ token }: NewsGridProps) {
   const [isReloading, setIsReloading] = useState(false)
   const [isVisible, setIsVisible] = useState(true)
   const [isGridVisible50Percent, setIsGridVisible50Percent] = useState(false)
-  const [newsView, setNewsView] = useState<NewsViewMode>(() => {
-    const stored = localStorage.getItem(NEWS_VIEW_KEY)
-    return stored === "featured" || stored === "list" ? stored : "list"
-  })
 
   const toggleNewsView = useCallback(() => {
-    setNewsView((prev) => {
-      const next = prev === "list" ? "featured" : "list"
-      localStorage.setItem(NEWS_VIEW_KEY, next)
-      return next
-    })
-  }, [])
+    const next = newsView === "list" ? "featured" : "list"
+    onNewsViewChange(next)
+  }, [newsView, onNewsViewChange])
   const newsContainerRef = useRef<HTMLDivElement>(null)
   const cardRefs = useRef<(HTMLAnchorElement | null)[]>([])
   const visibleCards50 = useRef<Set<Element>>(new Set())
@@ -285,11 +279,11 @@ function NewsGrid({ token }: NewsGridProps) {
         )}
       </div>
       {article.imageUrl && (
-        <div className="flex-shrink-0 p-4 border-b md:border-b-0 md:border-l border-white/5 flex items-stretch justify-center order-2">
+        <div className="flex-shrink-0 p-4 border-b md:border-b-0 md:border-l border-white/5 flex items-center justify-center order-2 self-center">
           <img
             src={article.imageUrl}
             alt={article.title}
-            className="w-full md:w-40 h-32 md:h-full md:min-h-[140px] object-cover rounded-lg md:rounded-l-none md:rounded-r-lg"
+            className="w-full h-32 min-h-0 md:w-40 md:h-40 md:min-h-0 object-cover rounded-lg md:rounded-l-none md:rounded-r-lg"
           />
         </div>
       )}
