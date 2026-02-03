@@ -2,7 +2,7 @@
 
 ## Preview
 
-<video src="../assets/preview.mov" controls width="640"></video>
+<video src="../assets/preview.mp4" controls width="640"></video>
 
 ---
 
@@ -389,7 +389,7 @@ NEWTAB_SERVICE_PORT=8082
 ```
 /Users/kalen_1o/learning/microservice/
 ├── assets/
-│   └── preview.mov              # Application preview video
+│   └── preview.mp4              # Application preview video
 ├── apps/
 │   ├── be/
 │   │   ├── auth-service/          # Spring Boot auth
