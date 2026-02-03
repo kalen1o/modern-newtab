@@ -8,7 +8,6 @@ Authentication service for NewTab application built with Spring Boot 3.2.
 - Spring Data JPA
 - JWT (io.jsonwebtoken:jjwt 0.12.3)
 - PostgreSQL
-- Flyway
 - Maven
 - Java 21
 
@@ -85,6 +84,4 @@ curl -X GET http://localhost:8081/api/auth/validate \
 
 ## Database Schema
 
-Migrations are automatically applied via Flyway.
-
-See `src/main/resources/db/migration/V1__Create_users_table.sql` for schema.
+Database schema is automatically created/updated by Hibernate via JPA.

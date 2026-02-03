@@ -57,6 +57,8 @@ The system consists of:
    - Routes `/api/auth/*` to auth-service (port 8081)
    - Routes `/api/*` to newtab-service (port 8082)
    - Handles CORS headers
+   - **Validates JWT tokens using `auth_request`** for all `/api/*` endpoints (except `/api/auth/*`)
+   - Forwards user information (email, userType) to downstream services via headers
 
 ---
 
@@ -116,20 +118,26 @@ The system consists of:
    - Checks if email already exists in database
    - Hashes password using BCryptPasswordEncoder
    - Creates new User entity and saves to PostgreSQL
-   - Generates JWT token with:
+   - Generates access token with:
      - Subject: user email
      - Claim: `userType: "registered"`
-     - Expiration: 24 hours (configurable)
-   - Returns `AuthResponse` with token, refreshToken (same token), and userType
+     - Expiration: 1 minute (configurable)
+   - Generates refresh token with:
+     - Subject: user email
+     - Claim: `userType: "registered"`
+     - Claim: `type: "refresh"`
+     - Expiration: 7 days
+   - Stores refresh token in database
+   - Returns `AuthResponse` with token, refreshToken, and userType
 6. **Frontend** receives response and stores tokens in localStorage:
-   - `authToken`: JWT token
-   - `refreshToken`: Same token (simplified implementation)
+   - `authToken`: Access token (1 min expiry)
+   - `refreshToken`: Refresh token (7 day expiry)
    - `userType`: "registered"
 7. **useAuth hook** updates state: `isAuthenticated = true`, `isRegistered = true`
 
 **Code References:**
 - Frontend: `apps/fe/newtab/src/api/auth.ts:37-41`
-- Backend: `apps/be/auth-service/src/main/java/com/newtab/auth/service/AuthService.java:26-39`
+- Backend: `apps/be/auth-service/src/main/java/com/newtab/auth/service/AuthService.java:28-41`
 
 ---
 
@@ -183,13 +191,15 @@ The system consists of:
    - Retrieves user from database by email
    - Verifies password using `BCryptPasswordEncoder.matches()`
    - If credentials invalid, throws RuntimeException
-   - If valid, generates JWT token with email and `userType: "registered"`
-   - Returns `AuthResponse`
+   - If valid, generates access token with email and `userType: "registered"` (1 min expiry)
+   - Generates refresh token with email, `userType: "registered"`, and `type: "refresh"` (7 day expiry)
+   - Stores refresh token in database
+   - Returns `AuthResponse` with both tokens
 6. **Frontend** stores tokens in localStorage and updates authentication state
 
 **Code References:**
 - Frontend: `apps/fe/newtab/src/api/auth.ts:31-35`
-- Backend: `apps/be/auth-service/src/main/java/com/newtab/auth/service/AuthService.java:41-51`
+- Backend: `apps/be/auth-service/src/main/java/com/newtab/auth/service/AuthService.java:43-55`
 
 ---
 
@@ -209,10 +219,16 @@ The system consists of:
      │                   ├──────────────────────>│
      │                   │                       │
      │                   │                       │ Generate guest email
-     │                   │                       │ (guest-{timestamp}@guest.newtab)
+     │                   │                       │ (guest-{uuid}@guest.newtab)
      │                   │                       │
-     │                   │                       │ Generate JWT
-     │                   │                       │ (email, "guest")
+     │                   │                       │ Generate access token
+     │                   │                       │ (email, "guest", 1 min)
+     │                   │                       │
+     │                   │                       │ Generate refresh token
+     │                   │                       │ (email, "guest", 7 days)
+     │                   │                       │
+     │                   │                       │ Store refresh token
+     │                   │                       │ in database
      │                   │                       │
      │                   │                       │ AuthResponse
      │                   │<──────────────────────┤
@@ -235,15 +251,17 @@ The system consists of:
 3. **Nginx** routes request to auth-service
 4. **AuthController** receives request and calls `AuthService.guestToken()`
 5. **AuthService**:
-   - Generates unique guest email: `guest-{timestamp}@guest.newtab`
-   - Creates JWT token with guest email and `userType: "guest"`
+   - Generates unique guest email: `guest-{uuid}@guest.newtab`
+   - Creates access token with guest email and `userType: "guest"` (1 min expiry)
+   - Creates refresh token with guest email, `userType: "guest"`, and `type: "refresh"` (7 day expiry)
+   - Stores refresh token in database
    - **No user record created in database**
-   - Returns `AuthResponse`
+   - Returns `AuthResponse` with both tokens
 6. **Frontend** stores tokens and sets `isRegistered = false`
 
 **Code References:**
 - Frontend: `apps/fe/newtab/src/api/auth.ts:25-29`
-- Backend: `apps/be/auth-service/src/main/java/com/newtab/auth/service/AuthService.java:58-62`
+- Backend: `apps/be/auth-service/src/main/java/com/newtab/auth/service/AuthService.java:117-122`
 
 ---
 
@@ -311,32 +329,41 @@ The system consists of:
 ### 5. Protected API Request Flow
 
 ```
-┌─────────┐         ┌──────────┐         ┌──────────────┐         ┌─────────────┐
-│ Browser │         │  Nginx   │         │ NewTab Service│        │ Auth Service│
-└────┬────┘         └────┬─────┘         └──────┬───────┘         └──────┬──────┘
+┌─────────┐         ┌──────────┐         ┌─────────────┐         ┌──────────────┐
+│ Browser │         │  Nginx   │         │ Auth Service│         │ NewTab Service│
+└────┬────┘         └────┬─────┘         └──────┬──────┘         └──────┬───────┘
      │                   │                       │                        │
      │ GET /api/search   │                       │                        │
      │ Authorization:    │                       │                        │
      │ Bearer {token}    │                       │                        │
      ├──────────────────>│                       │                        │
      │                   │                       │                        │
-     │                   │ GET /api/search       │                        │
+     │                   │ Internal auth_request │                        │
+     │                   │ /internal/auth        │                        │
      │                   │ Authorization: Bearer │                        │
      │                   ├──────────────────────>│                        │
      │                   │                       │                        │
-     │                   │                       │ JwtAuthenticationFilter│
-     │                   │                       │ intercepts request      │
+     │                   │ Extract token         │                        │
+     │                   │ Validate signature    │                        │
+     │                   │ Extract email & userType                      │
      │                   │                       │                        │
-     │                   │                       │ Extract token          │
-     │                   │                       │ Validate signature     │
-     │                   │                       │ Extract email & userType│
+     │                   │ 200 OK                │                        │
+     │                   │ X-User-Email: ...     │                        │
+     │                   │ X-User-Type: ...      │                        │
+     │                   │<──────────────────────┤                        │
      │                   │                       │                        │
-     │                   │                       │ Create Authentication  │
-     │                   │                       │ Set SecurityContext    │
+     │                   │ GET /api/search       │                        │
+     │                   │ X-User-Email: ...     │                        │
+     │                   │ X-User-Type: ...      │                        │
+     │                   ├──────────────────────>│                        │
+     │                   │                       │ HeaderAuthFilter       │
+     │                   │                       │ reads headers         │
      │                   │                       │                        │
-     │                   │                       │ Process request        │
+     │                   │                       │ Set SecurityContext   │
      │                   │                       │                        │
-     │                   │                       │ Response               │
+     │                   │                       │ Process request       │
+     │                   │                       │                        │
+     │                   │ Response               │                        │
      │                   │<──────────────────────┤                        │
      │                   │                       │                        │
      │ Response          │                       │                        │
@@ -350,73 +377,110 @@ The system consists of:
 2. **API Client** (`libs/shared/src/api.ts`) automatically:
    - Retrieves token from localStorage
    - Adds `Authorization: Bearer {token}` header to request
-3. **Nginx** routes `/api/*` requests to newtab-service (port 8082)
-4. **JwtAuthenticationFilter** (`apps/be/newtab-service/src/main/java/com/newtab/newtab/security/JwtAuthenticationFilter.java`) intercepts request:
+3. **Nginx** intercepts `/api/*` requests:
+   - Makes internal `auth_request` to `/internal/auth`
+   - Forwards Authorization header to auth-service
+4. **Auth Service** validates token at `/api/auth/validate`:
    - Extracts token from Authorization header
    - Validates token using `JwtProvider.validateToken()`
    - Extracts email and userType from token claims
+   - Returns 200 OK with headers: `X-User-Email` and `X-User-Type`
+5. **Nginx** receives validation response:
+   - If invalid/missing (401), returns 401 to client immediately
+   - If valid (200), forwards request to newtab-service
+   - Forwards `X-User-Email` and `X-User-Type` headers to backend
+6. **NewTab Service** receives request:
+   - `HeaderAuthenticationFilter` reads `X-User-Email` and `X-User-Type` headers
    - Creates `UserPrincipal` with email and userType
    - Creates `UsernamePasswordAuthenticationToken` with `ROLE_USER` authority
    - Sets authentication in Spring Security context
-5. **Controller** processes request with authenticated user context
-6. **Response** returned to frontend
+7. **Controller** processes request with authenticated user context
+8. **Response** returned to frontend
 
 **Code References:**
 - Frontend API Client: `libs/shared/src/api.ts:22-44`
-- Backend Filter: `apps/be/newtab-service/src/main/java/com/newtab/newtab/security/JwtAuthenticationFilter.java:26-54`
+- Nginx Config: `docker/nginx.conf:68-99`
+- Auth Service Validate: `apps/be/auth-service/src/main/java/com/newtab/auth/controller/AuthController.java:83-108`
+- Header Auth Filter: `apps/be/newtab-service/src/main/java/com/newtab/newtab/security/HeaderAuthenticationFilter.java`
 
 ---
 
 ### 6. Token Refresh Flow
 
 ```
-┌─────────┐         ┌──────────┐         ┌─────────────┐
-│ Browser │         │  Nginx   │         │ Auth Service│
-└────┬────┘         └────┬─────┘         └──────┬──────┘
-     │                   │                       │
-     │ POST /api/auth/   │                       │
-     │ refresh           │                       │
-     │ Authorization:    │                       │
-     │ Bearer {token}    │                       │
-     ├──────────────────>│                       │
-     │                   │                       │
-     │                   │ POST /api/auth/       │
-     │                   │ refresh               │
-     │                   ├──────────────────────>│
-     │                   │                       │
-     │                   │                       │ Extract token
-     │                   │                       │ Validate token
-     │                   │                       │ Extract email
-     │                   │                       │
-     │                   │                       │ Generate new JWT
-     │                   │                       │ (same email, userType)
-     │                   │                       │
-     │                   │                       │ AuthResponse
-     │                   │<──────────────────────┤
-     │                   │                       │
-     │ AuthResponse      │                       │
-     │ {newToken, ...}   │                       │
-     │<──────────────────┤                       │
-     │                   │                       │
-     │ Update localStorage│                      │
-     │                   │                       │
+┌─────────┐         ┌──────────┐         ┌─────────────┐         ┌──────────────┐
+│ Browser │         │  Nginx   │         │ Auth Service│         │  PostgreSQL  │
+└────┬────┘         └────┬─────┘         └──────┬──────┘         └──────┬───────┘
+     │                   │                       │                       │
+     │ POST /api/auth/   │                       │                       │
+     │ refresh           │                       │                       │
+     │ {refreshToken}    │                       │                       │
+     ├──────────────────>│                       │                       │
+     │                   │                       │                       │
+     │                   │ POST /api/auth/       │                       │
+     │                   │ refresh               │                       │
+     │                   ├──────────────────────>│                       │
+     │                   │                       │                       │
+     │                   │                       │ Validate refresh token
+     │                   │                       │ Check if expired       │
+     │                   │                       │                       │
+     │                   │                       │ Find stored token     │
+     │                   │                       ├───────────────────────>│
+     │                   │                       │<───────────────────────┤
+     │                   │                       │                       │
+     │                   │                       │ Generate new access   │
+     │                   │                       │ token (15 min expiry) │
+     │                   │                       │ Generate new refresh   │
+     │                   │                       │ token (7 day expiry)   │
+     │                   │                       │                       │
+     │                   │                       │ Delete old refresh     │
+     │                   │                       │ token                 │
+     │                   │                       ├───────────────────────>│
+     │                   │                       │                       │
+     │                   │                       │ Store new refresh      │
+     │                   │                       │ token                 │
+     │                   │                       ├───────────────────────>│
+     │                   │                       │                       │
+     │                   │                       │ AuthResponse          │
+     │                   │<──────────────────────┤                       │
+     │                   │                       │                       │
+     │ AuthResponse      │                       │                       │
+     │ {newToken,        │                       │                       │
+     │  newRefreshToken} │                       │                       │
+     │<──────────────────┤                       │                       │
+     │                   │                       │                       │
+     │ Update localStorage│                      │                       │
+     │                   │                       │                       │
 ```
 
 **Step-by-Step Process:**
 
-1. **Frontend** calls `authService.refreshToken()` when token is about to expire
-2. **Request** sent to `/api/auth/refresh` with current token in Authorization header
-3. **AuthController** extracts token and validates it
+1. **Frontend** calls `authService.refreshToken()` when access token is about to expire
+2. **Request** sent to `/api/auth/refresh` with `refreshToken` in request body
+3. **AuthController** receives refresh token
 4. **AuthService**:
-   - Validates existing token
-   - Extracts email from token
-   - Generates new JWT token with same email and userType
-   - Returns new `AuthResponse`
+   - Validates refresh token signature
+   - Checks if it's a refresh token (not access token)
+   - Verifies token is not expired and exists in database
+   - Extracts email and userType
+   - Generates new access token (1-minute expiry)
+   - Generates new refresh token (7-day expiry)
+   - Deletes old refresh token from database
+   - Stores new refresh token in database
+   - Returns new `AuthResponse` with both tokens
 5. **Frontend** updates localStorage with new tokens
 
+**Key Differences from Access Tokens:**
+- **Access Token**: Short-lived (1 minute), used for API calls
+- **Refresh Token**: Long-lived (7 days), stored in database, used to get new access tokens
+- **Token Rotation**: Old refresh token is invalidated when generating new one
+- **Security**: Refresh tokens have `type: "refresh"` claim to distinguish from access tokens
+
 **Code References:**
-- Frontend: `apps/fe/newtab/src/api/auth.ts:43-51`
-- Backend: `apps/be/auth-service/src/main/java/com/newtab/auth/controller/AuthController.java:60-73`
+- Frontend: `apps/fe/newtab/src/api/auth.ts:45-53`
+- Backend: `apps/be/auth-service/src/main/java/com/newtab/auth/controller/AuthController.java:76-84`
+- Backend Service: `apps/be/auth-service/src/main/java/com/newtab/auth/service/AuthService.java:91-115`
+- JWT Provider: `apps/be/auth-service/src/main/java/com/newtab/auth/security/JwtProvider.java:79-93`
 
 ---
 
@@ -462,21 +526,41 @@ The system consists of:
 
 ## JWT Token Structure
 
-### Token Claims
+### Access Token Claims
 
 ```json
 {
   "sub": "user@example.com",
   "userType": "registered",
   "iat": 1234567890,
-  "exp": 1234654290
+  "exp": 1234567890
 }
 ```
 
+**Access Token Claims:**
 - **sub** (subject): User's email address
 - **userType**: Either "registered" or "guest"
 - **iat** (issued at): Timestamp when token was created
-- **exp** (expiration): Timestamp when token expires (24 hours from iat)
+- **exp** (expiration): Timestamp when token expires (1 minute from iat)
+
+### Refresh Token Claims
+
+```json
+{
+  "sub": "user@example.com",
+  "userType": "registered",
+  "type": "refresh",
+  "iat": 1234567890,
+  "exp": 1234567890
+}
+```
+
+**Refresh Token Claims:**
+- **sub** (subject): User's email address
+- **userType**: Either "registered" or "guest"
+- **type**: Always "refresh" to distinguish from access tokens
+- **iat** (issued at): Timestamp when token was created
+- **exp** (expiration): Timestamp when token expires (7 days from iat)
 
 ### Token Generation
 
@@ -485,10 +569,24 @@ Tokens are signed using HMAC-SHA256 with a secret key configured in `application
 ```yaml
 jwt:
   secret: ${JWT_SECRET:your-super-secret-key-change-this-in-production-min-256-bits}
-  expiration: 86400000  # 24 hours in milliseconds
+  expiration: 60000  # 1 minute in milliseconds (access token) - for testing
+  refresh-expiration: 604800000  # 7 days in milliseconds (refresh token)
 ```
 
-**Code Reference:** `apps/be/auth-service/src/main/java/com/newtab/auth/security/JwtProvider.java:36-47`
+**Token Differences:**
+
+| Property | Access Token | Refresh Token |
+|----------|--------------|---------------|
+| Purpose | API authentication | Token refresh |
+| Expiration | 1 minute | 7 days |
+| Storage | localStorage | localStorage + database |
+| Contains `type: "refresh"` | No | Yes |
+| Used in Authorization header | Yes | No |
+
+**Code References:**
+- JWT Provider: `apps/be/auth-service/src/main/java/com/newtab/auth/security/JwtProvider.java:36-93`
+- Refresh Token Entity: `apps/be/auth-service/src/main/java/com/newtab/auth/entity/RefreshToken.java`
+- Refresh Token Repository: `apps/be/auth-service/src/main/java/com/newtab/auth/repository/RefreshTokenRepository.java`
 
 ---
 
@@ -501,23 +599,59 @@ The auth-service allows public access to all `/api/auth/**` endpoints:
 ```java
 .authorizeHttpRequests(auth -> auth
     .requestMatchers("/api/auth/**").permitAll()
+    .requestMatchers("/api/health/**").permitAll()
+    .requestMatchers("/actuator/health").permitAll()
+    .requestMatchers("/swagger-ui/**").permitAll()
+    .requestMatchers("/swagger-ui.html").permitAll()
+    .requestMatchers("/v3/api-docs/**").permitAll()
     .anyRequest().authenticated())
 ```
 
-**Code Reference:** `apps/be/auth-service/src/main/java/com/newtab/auth/config/SecurityConfig.java:18-19`
+**Code Reference:** `apps/be/auth-service/src/main/java/com/newtab/auth/config/SecurityConfig.java:23-30`
 
 ### NewTab Service Security
 
-The newtab-service requires authentication for all endpoints except health checks:
+The newtab-service uses **nginx-level authentication**:
+- Nginx validates JWT tokens before requests reach the service
+- All requests are permitted at the Spring Security level
+- `HeaderAuthenticationFilter` reads user information from headers set by nginx
 
 ```java
 .authorizeHttpRequests(auth -> auth
     .requestMatchers("/api/health/**").permitAll()
-    .anyRequest().authenticated())
-.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+    .requestMatchers("/actuator/health").permitAll()
+    .requestMatchers("/swagger-ui/**").permitAll()
+    .requestMatchers("/swagger-ui.html").permitAll()
+    .requestMatchers("/v3/api-docs/**").permitAll()
+    .anyRequest().permitAll())  // nginx handles auth
+.addFilterBefore(headerAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 ```
 
-**Code Reference:** `apps/be/newtab-service/src/main/java/com/newtab/newtab/config/SecurityConfig.java:31-38`
+**Code Reference:** `apps/be/newtab-service/src/main/java/com/newtab/newtab/config/SecurityConfig.java:31-40`
+
+### Nginx Authentication
+
+Nginx provides the authentication layer using `auth_request`:
+
+```nginx
+location /api/ {
+    # Validate JWT token using nginx auth_request
+    auth_request /internal/auth;
+
+    # Capture user information from auth service response headers
+    auth_request_set $user_email $upstream_http_x_user_email;
+    auth_request_set $user_type $upstream_http_x_user_type;
+
+    # Forward user information to downstream service
+    proxy_set_header X-User-Email $user_email;
+    proxy_set_header X-User-Type $user_type;
+
+    # Handle auth errors
+    error_page 401 = @error401;
+}
+```
+
+**Code Reference:** `docker/nginx.conf:70-99`
 
 ---
 
@@ -544,19 +678,41 @@ The newtab-service requires authentication for all endpoints except health check
 
 ### Frontend Storage (localStorage)
 
-- **Key**: `authToken` - JWT access token
-- **Key**: `refreshToken` - Currently same as access token (simplified)
+- **Key**: `authToken` - JWT access token (1 min expiry)
+- **Key**: `refreshToken` - JWT refresh token (7 day expiry)
 - **Key**: `userType` - Either "guest" or "registered"
+- **Key**: `userEmail` - User's email address
 
-**Code Reference:** `apps/fe/newtab/src/api/auth.ts:61-65`
+**Code Reference:** `apps/fe/newtab/src/api/auth.ts:66-73`
 
 ### Backend Storage (PostgreSQL)
 
-- **Table**: `users`
-- **Columns**: `id`, `email`, `password_hash`, `created_at`
-- **Migration**: `V1__Create_users_table.sql`
+All database tables are managed by **newtab-service** through Flyway migrations located at:
+- `apps/be/newtab-service/src/main/resources/db/migration/`
 
-**Note**: Guest users are not stored in the database - they only exist as JWT tokens.
+- **Table**: `users`
+  - `id` (UUID)
+  - `email` (unique, indexed)
+  - `password_hash` (BCrypt hashed)
+  - `created_at`
+  - `updated_at`
+
+- **Table**: `refresh_tokens`
+  - `id` (auto-increment BIGSERIAL)
+  - `token` (unique JWT string, indexed)
+  - `user_id` (email or guest identifier, indexed)
+  - `user_type` ("guest" or "registered")
+  - `expiry_date` (timestamp, indexed)
+  - `created_at`
+
+**Code References:**
+- User Entity: `apps/be/auth-service/src/main/java/com/newtab/auth/entity/User.java`
+- Refresh Token Entity: `apps/be/auth-service/src/main/java/com/newtab/auth/entity/RefreshToken.java`
+- User Repository: `apps/be/auth-service/src/main/java/com/newtab/auth/repository/UserRepository.java`
+- Refresh Token Repository: `apps/be/auth-service/src/main/java/com/newtab/auth/repository/RefreshTokenRepository.java`
+- Migration Script: `apps/be/newtab-service/src/main/resources/db/migration/V1__Create_all_tables.sql`
+
+**Note**: Guest users are not stored in the `users` table - they only exist as JWT tokens. However, their refresh tokens ARE stored in the `refresh_tokens` table for proper token management.
 
 ---
 
@@ -582,9 +738,17 @@ The authentication system provides:
 1. **Stateless authentication** using JWT tokens
 2. **Three access paths**: Registration, Login, Guest access
 3. **Automatic token injection** in API requests
-4. **Token validation** on app load and API requests
+4. **Token validation at nginx gateway** using `auth_request` module
 5. **Secure password storage** using BCrypt hashing
 6. **Microservice architecture** with separate auth and resource services
 7. **CORS support** for cross-origin requests
+8. **Centralized authentication** - nginx validates tokens before requests reach backend services
+9. **Header-based user context** - nginx forwards user information via headers to downstream services
 
-All authentication flows are designed to be secure, scalable, and user-friendly while maintaining separation of concerns between frontend and backend services.
+**Key Architecture Changes:**
+- Authentication moved from backend filters to nginx gateway
+- `HeaderAuthenticationFilter` replaces `JwtAuthenticationFilter` in newtab-service
+- Auth service `validate` endpoint now returns user information in response headers
+- All `/api/*` endpoints (except `/api/auth/*`) are protected by nginx auth_request
+
+All authentication flows are designed to be secure, scalable, and user-friendly while maintaining separation of concerns between frontend, gateway, and backend services.

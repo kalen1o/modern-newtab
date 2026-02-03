@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.newtab.auth.dto.AuthResponse;
 import com.newtab.auth.dto.LoginRequest;
+import com.newtab.auth.dto.RefreshRequest;
 import com.newtab.auth.dto.RegisterRequest;
 import com.newtab.auth.dto.ValidateResponse;
 import com.newtab.auth.service.AuthService;
@@ -22,6 +23,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
 @RestController
@@ -66,31 +68,34 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    @Operation(summary = "Refresh token", description = "Refreshes JWT token using existing valid token")
-    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Refresh token", description = "Refreshes JWT token using a valid refresh token")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Token refreshed successfully", content = @Content(schema = @Schema(implementation = AuthResponse.class))),
-            @ApiResponse(responseCode = "401", description = "Invalid or expired token")
+            @ApiResponse(responseCode = "401", description = "Invalid or expired refresh token")
     })
-    public ResponseEntity<AuthResponse> refresh(
-            @Parameter(description = "Bearer token", required = true) @RequestHeader("Authorization") String authHeader) {
-        String token = authHeader.replace("Bearer ", "");
-        ValidateResponse validated = authService.validateToken(token);
-        AuthResponse response = authService.refreshToken(validated.getEmail(), validated.getUserType());
+    public ResponseEntity<AuthResponse> refresh(@RequestBody RefreshRequest request) {
+        AuthResponse response = authService.refreshUsingRefreshToken(request.getRefreshToken());
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/validate")
-    @Operation(summary = "Validate token", description = "Validates JWT token and returns user email and userType")
+    @Operation(summary = "Validate token", description = "Validates JWT token and returns user email and userType. For nginx auth_request, also sets X-User-Email and X-User-Type headers.")
     @SecurityRequirement(name = "bearerAuth")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Token is valid", content = @Content(schema = @Schema(implementation = ValidateResponse.class))),
             @ApiResponse(responseCode = "401", description = "Invalid or expired token")
     })
     public ResponseEntity<ValidateResponse> validate(
-            @Parameter(description = "Bearer token", required = true) @RequestHeader("Authorization") String authHeader) {
+            @Parameter(description = "Bearer token", required = true) @RequestHeader("Authorization") String authHeader,
+            HttpServletResponse response) {
         String token = authHeader.replace("Bearer ", "");
-        ValidateResponse response = authService.validateToken(token);
-        return ResponseEntity.ok(response);
+        ValidateResponse validateResponse = authService.validateToken(token);
+
+        // Set user information in response headers for nginx auth_request
+        // These headers will be passed to downstream services
+        response.setHeader("X-User-Email", validateResponse.getEmail());
+        response.setHeader("X-User-Type", validateResponse.getUserType());
+
+        return ResponseEntity.ok(validateResponse);
     }
 }

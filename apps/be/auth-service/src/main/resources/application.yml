@@ -13,15 +13,18 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: validate  # Schema managed by newtab-service migrations
     show-sql: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
+  flyway:
+    enabled: false  # Migrations managed by newtab-service
+
 jwt:
   secret: ${JWT_SECRET:your-super-secret-key-change-this-in-production-min-256-bits}
-  expiration: 86400000  # 24 hours in milliseconds
+  expiration: 60000  # 1 minute in milliseconds (for testing)
   refresh-expiration: 604800000  # 7 days in milliseconds
 
 logging:
