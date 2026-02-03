@@ -1,0 +1,154 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "nx-run-newtab:serve",
+            "type": "shell",
+            "command": "pnpm",
+            "args": [
+                "dev"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/apps/fe/newtab"
+            },
+            "isBackground": true,
+            "problemMatcher": {
+                "pattern": {
+                    "regexp": "^$"
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "Local:",
+                    "endsPattern": "ready in"
+                }
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
+        },
+        {
+            "label": "nx-run-autocomplete-input:serve",
+            "type": "shell",
+            "command": "pnpm",
+            "args": [
+                "dev"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/apps/fe/autocomplete-input"
+            },
+            "isBackground": true,
+            "problemMatcher": {
+                "pattern": {
+                    "regexp": "^$"
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "Local:",
+                    "endsPattern": "ready in"
+                }
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
+        },
+        {
+            "label": "nx-run-news:serve",
+            "type": "shell",
+            "command": "pnpm",
+            "args": [
+                "dev"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/apps/fe/news"
+            },
+            "isBackground": true,
+            "problemMatcher": {
+                "pattern": {
+                    "regexp": "^$"
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "Local:",
+                    "endsPattern": "ready in"
+                }
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
+        },
+        {
+            "label": "nx-run-auth-service:build",
+            "type": "shell",
+            "command": "nx",
+            "args": [
+                "run",
+                "auth-service:build"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$javac"
+            ],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
+        },
+        {
+            "label": "nx-run-newtab-service:build",
+            "type": "shell",
+            "command": "nx",
+            "args": [
+                "run",
+                "newtab-service:build"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$javac"
+            ],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
+        },
+        {
+            "label": "docker-compose-up",
+            "type": "shell",
+            "command": "docker-compose",
+            "args": [
+                "up",
+                "-d"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/docker"
+            },
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
+        },
+        {
+            "label": "docker-compose-down",
+            "type": "shell",
+            "command": "docker-compose",
+            "args": [
+                "down"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/docker"
+            },
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
+        }
+    ]
+}

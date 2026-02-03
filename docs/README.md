@@ -313,6 +313,43 @@ Complete documentation of the authentication system architecture and flows.
 
 ---
 
+### 12. [Debugging Guide](./12-debugging-guide.md)
+
+Complete debugging configurations for VS Code local development and Nx Cloud CI/CD distributed builds.
+
+**Topics:**
+- VS Code launch.json configurations
+- Debugging frontend React/Vite applications
+- Debugging backend Spring Boot services
+- Jest test debugging
+- Docker Compose debugging
+- Nx Cloud launch templates
+- CI/CD distributed agent setup
+- Troubleshooting guide
+- Best practices
+
+**VS Code Debugging:**
+- NewTab Shell (port 5173)
+- Autocomplete MFE (port 5001)
+- News MFE (port 5002)
+- Auth Service (port 8081)
+- NewTab Service (port 8080)
+- Jest tests for all apps
+
+**Nx Cloud Templates:**
+- `linux-medium-js` - Frontend builds
+- `linux-large-java` - Backend builds
+- `linux-fullstack` - Combined full-stack builds
+- `linux-small-js` - Quick fixes
+- `linux-xl-fullstack` - Performance-intensive tasks
+
+**Prerequisites:**
+- VS Code extensions: `msjsdiag.debugger-for-chrome`, `vscjava.vscode-java-debugger`
+- Nx Cloud account (for distributed builds)
+- Docker Compose (for service orchestration)
+
+---
+
 ## Quick Reference
 
 ### Application Ports

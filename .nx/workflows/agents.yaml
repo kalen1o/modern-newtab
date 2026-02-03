@@ -1,0 +1,176 @@
+# Define common setup steps that can be reused across templates
+common-js-init-steps: &common-js-init-steps
+  - name: Checkout
+    uses: 'nrwl/nx-cloud-workflows/v5/workflow-steps/checkout/main.yaml'
+  - name: Restore Node Modules Cache
+    uses: 'nrwl/nx-cloud-workflows/v5/workflow-steps/cache/main.yaml'
+    inputs:
+      # Include patches directories to ensure cache is busted when patches change
+      key: 'pnpm-lock.yaml|patches/**/*|.yarn/patches/**/*|pnpm-patches/**/*'
+      paths: |
+        ~/.local/share/pnpm/store
+        node_modules
+        .nx/cache
+      base-branch: 'main'
+  - name: Install Node Modules
+    uses: 'nrwl/nx-cloud-workflows/v5/workflow-steps/install-node-modules/main.yaml'
+  - name: Install Browser Binaries
+    uses: 'nrwl/nx-cloud-workflows/v5/workflow-steps/install-browsers/main.yaml'
+
+common-java-init-steps: &common-java-init-steps
+  - name: Checkout
+    uses: 'nrwl/nx-cloud-workflows/v5/workflow-steps/checkout/main.yaml'
+  - name: Restore Node Modules Cache
+    uses: 'nrwl/nx-cloud-workflows/v5/workflow-steps/cache/main.yaml'
+    inputs:
+      key: 'pnpm-lock.yaml|patches/**/*|.yarn/patches/**/*|pnpm-patches/**/*'
+      paths: |
+        ~/.local/share/pnpm/store
+        node_modules
+        .nx/cache
+      base-branch: 'main'
+  - name: Install Node Modules
+    uses: 'nrwl/nx-cloud-workflows/v5/workflow-steps/install-node-modules/main.yaml'
+  - name: Install Maven Dependencies Cache
+    uses: 'nrwl/nx-cloud-workflows/v5/workflow-steps/cache/main.yaml'
+    inputs:
+      key: 'apps/be/*/pom.xml'
+      paths: |
+        ~/.m2/repository
+      base-branch: 'main'
+
+# Define launch templates for different use cases
+launch-templates:
+
+  # Template for frontend React/Vite builds
+  linux-medium-js:
+    resource-class: 'docker_linux_amd64/medium'
+    image: 'ubuntu22.04-node20.11-v9'
+    env:
+      # Enable verbose logging for debugging
+      NX_VERBOSE_LOGGING: false
+      # Use pnpm as package manager
+      COREPACK_ENABLE_STRICT: 0
+    init-steps: *common-js-init-steps
+
+  # Template for backend Spring Boot/Java services
+  linux-large-java:
+    resource-class: 'docker_linux_amd64/large'
+    image: 'ubuntu22.04-node20.11-v9'
+    env:
+      NX_VERBOSE_LOGGING: false
+      COREPACK_ENABLE_STRICT: 0
+      # Java settings
+      JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
+    init-steps: *common-java-init-steps
+
+  # Combined template for full-stack builds
+  linux-fullstack:
+    resource-class: 'docker_linux_amd64/large'
+    image: 'ubuntu22.04-node20.11-v9'
+    env:
+      NX_VERBOSE_LOGGING: false
+      COREPACK_ENABLE_STRICT: 0
+      JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
+      # Docker settings for service testing
+      DOCKER_HOST: tcp://dind:2375
+    init-steps:
+      # Parallel group for faster startup
+      - group-name: Install Dependencies
+        parallel: true
+        steps:
+          - name: Checkout
+            uses: 'nrwl/nx-cloud-workflows/v5/workflow-steps/checkout/main.yaml'
+          - name: Install Node.js Dependencies
+            uses: 'nrwl/nx-cloud-workflows/v5/workflow-steps/install-node-modules/main.yaml'
+          - name: Install Maven Dependencies
+            script: |
+              cd apps/be
+              for dir in auth-service newtab-service; do
+                if [ -d "$dir" ]; then
+                  cd "$dir"
+                  mvn dependency:go-offline -B
+                  cd ..
+                fi
+              done
+      - name: Restore Node Modules Cache
+        uses: 'nrwl/nx-cloud-workflows/v5/workflow-steps/cache/main.yaml'
+        inputs:
+          key: 'pnpm-lock.yaml|patches/**/*|.yarn/patches/**/*|pnpm-patches/**/*'
+          paths: |
+            ~/.local/share/pnpm/store
+            node_modules
+            .nx/cache
+          base-branch: 'main'
+      - name: Restore Maven Cache
+        uses: 'nrwl/nx-cloud-workflows/v5/workflow-steps/cache/main.yaml'
+        inputs:
+          key: 'apps/be/*/pom.xml'
+          paths: |
+            ~/.m2/repository
+          base-branch: 'main'
+      - name: Install Browser Binaries
+        uses: 'nrwl/nx-cloud-workflows/v5/workflow-steps/install-browsers/main.yaml'
+      - name: Verify Java Installation
+        script: |
+          java -version
+          mvn -version
+
+  # Small template for quick fixes/patches
+  linux-small-js:
+    resource-class: 'docker_linux_amd64/small'
+    image: 'ubuntu22.04-node20.11-v9'
+    env:
+      NX_VERBOSE_LOGGING: false
+      COREPACK_ENABLE_STRICT: 0
+    init-steps: *common-js-init-steps
+
+  # Extra large template for performance-intensive builds
+  linux-xl-fullstack:
+    resource-class: 'docker_linux_amd64/extra_large'
+    image: 'ubuntu22.04-node20.11-v9'
+    env:
+      NX_VERBOSE_LOGGING: false
+      COREPACK_ENABLE_STRICT: 0
+      JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
+      DOCKER_HOST: tcp://dind:2375
+    init-steps:
+      - group-name: Install Dependencies
+        parallel: true
+        steps:
+          - name: Checkout
+            uses: 'nrwl/nx-cloud-workflows/v5/workflow-steps/checkout/main.yaml'
+          - name: Install Node.js Dependencies
+            uses: 'nrwl/nx-cloud-workflows/v5/workflow-steps/install-node-modules/main.yaml'
+          - name: Install Maven Dependencies
+            script: |
+              cd apps/be
+              for dir in auth-service newtab-service; do
+                if [ -d "$dir" ]; then
+                  cd "$dir"
+                  mvn dependency:go-offline -B
+                  cd ..
+                fi
+              done
+      - name: Restore Node Modules Cache
+        uses: 'nrwl/nx-cloud-workflows/v5/workflow-steps/cache/main.yaml'
+        inputs:
+          key: 'pnpm-lock.yaml|patches/**/*|.yarn/patches/**/*|pnpm-patches/**/*'
+          paths: |
+            ~/.local/share/pnpm/store
+            node_modules
+            .nx/cache
+          base-branch: 'main'
+      - name: Restore Maven Cache
+        uses: 'nrwl/nx-cloud-workflows/v5/workflow-steps/cache/main.yaml'
+        inputs:
+          key: 'apps/be/*/pom.xml'
+          paths: |
+            ~/.m2/repository
+          base-branch: 'main'
+      - name: Install Browser Binaries
+        uses: 'nrwl/nx-cloud-workflows/v5/workflow-steps/install-browsers/main.yaml'
+      - name: Verify Java Installation
+        script: |
+          java -version
+          mvn -version

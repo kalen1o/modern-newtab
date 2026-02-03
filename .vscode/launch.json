@@ -1,0 +1,157 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug NewTab Shell",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:5173",
+            "webRoot": "${workspaceFolder}/apps/fe/newtab",
+            "sourceMaps": true,
+            "trace": true,
+            "preLaunchTask": "nx-run-newtab:serve"
+        },
+        {
+            "name": "Debug Autocomplete MFE",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:5001",
+            "webRoot": "${workspaceFolder}/apps/fe/autocomplete-input",
+            "sourceMaps": true,
+            "trace": true,
+            "preLaunchTask": "nx-run-autocomplete-input:serve"
+        },
+        {
+            "name": "Debug News MFE",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:5002",
+            "webRoot": "${workspaceFolder}/apps/fe/news",
+            "sourceMaps": true,
+            "trace": true,
+            "preLaunchTask": "nx-run-news:serve"
+        },
+        {
+            "name": "Debug Auth Service",
+            "type": "java",
+            "request": "attach",
+            "hostName": "localhost",
+            "port": 5005,
+            "timeout": 30000,
+            "projectName": "auth-service",
+            "preLaunchTask": "nx-run-auth-service:build"
+        },
+        {
+            "name": "Debug NewTab Service",
+            "type": "java",
+            "request": "attach",
+            "hostName": "localhost",
+            "port": 5006,
+            "timeout": 30000,
+            "projectName": "newtab-service",
+            "preLaunchTask": "nx-run-newtab-service:build"
+        },
+        {
+            "name": "Debug Jest Tests (newtab)",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "node",
+            "runtimeArgs": [
+                "--inspect-brk=9229",
+                "${workspaceFolder}/node_modules/@nx/cli/bin/nx.js",
+                "test",
+                "newtab"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "sourceMaps": true,
+            "skipFiles": [
+                "<node_internals>/**"
+            ]
+        },
+        {
+            "name": "Debug Jest Tests (autocomplete)",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "node",
+            "runtimeArgs": [
+                "--inspect-brk=9230",
+                "${workspaceFolder}/node_modules/@nx/cli/bin/nx.js",
+                "test",
+                "autocomplete-input"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "sourceMaps": true,
+            "skipFiles": [
+                "<node_internals>/**"
+            ]
+        },
+        {
+            "name": "Debug Jest Tests (news)",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "node",
+            "runtimeArgs": [
+                "--inspect-brk=9231",
+                "${workspaceFolder}/node_modules/@nx/cli/bin/nx.js",
+                "test",
+                "news"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "sourceMaps": true,
+            "skipFiles": [
+                "<node_internals>/**"
+            ]
+        },
+        {
+            "name": "Debug Jest Tests (shared)",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "node",
+            "runtimeArgs": [
+                "--inspect-brk=9232",
+                "${workspaceFolder}/node_modules/@nx/cli/bin/nx.js",
+                "test",
+                "shared"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "sourceMaps": true,
+            "skipFiles": [
+                "<node_internals>/**"
+            ]
+        },
+        {
+            "name": "Debug with Docker Compose",
+            "type": "node",
+            "request": "attach",
+            "port": 9229,
+            "address": "localhost",
+            "localRoot": "${workspaceFolder}",
+            "remoteRoot": "/app",
+            "protocol": "inspector",
+            "preLaunchTask": "docker-compose-up"
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Debug All Frontend MFEs",
+            "configurations": [
+                "Debug NewTab Shell",
+                "Debug Autocomplete MFE",
+                "Debug News MFE"
+            ],
+            "stopAll": true
+        },
+        {
+            "name": "Debug All Backend Services",
+            "configurations": [
+                "Debug Auth Service",
+                "Debug NewTab Service"
+            ],
+            "stopAll": true
+        }
+    ]
+}
