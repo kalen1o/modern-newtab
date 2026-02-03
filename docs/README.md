@@ -2,7 +2,7 @@
 
 ## Preview
 
-<video src="../assets/preview.mp4" controls width="640"></video>
+<video src="https://github.com/kalen1o/modern-newtab/raw/refs/heads/main/assets/preview.mp4" controls width="640"></video>
 
 ---
 
